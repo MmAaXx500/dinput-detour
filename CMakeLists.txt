@@ -32,11 +32,9 @@ file(CREATE_LINK "${CMAKE_BINARY_DIR}/compile_commands.json" "${CMAKE_SOURCE_DIR
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(DETOURS_BITS 64)
-    set(DETOURS_TARGET_PROCESSOR "X64")
     set(BUILD_TOOLS True CACHE BOOL "Enable building tools (setdll, withdll)")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     set(DETOURS_BITS 32)
-    set(DETOURS_TARGET_PROCESSOR "X86")
     set(BUILD_TOOLS False CACHE BOOL "Enable building tools (setdll, withdll)")
 endif()
 
