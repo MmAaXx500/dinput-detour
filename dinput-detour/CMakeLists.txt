@@ -10,10 +10,14 @@ add_library(${DETOUR_LIBNAME} SHARED
   "log.cpp"
   "direct_input_8.cpp"
   "direct_input_device_8.cpp")
+
+target_link_options(${DETOUR_LIBNAME} PRIVATE 
+  /DEF:${CMAKE_CURRENT_SOURCE_DIR}/dinput-detour.def
+)
+
 copy_binary_to_bin(${DETOUR_LIBNAME})
 
 target_link_libraries(${DETOUR_LIBNAME} PRIVATE detours Dinput8.lib DxGUID.lib user32.lib)
-set_target_properties(${DETOUR_LIBNAME} PROPERTIES LINK_OPTIONS "/EXPORT:DetourFinishHelperProcess,@1,NONAME")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ${DETOUR_LIBNAME} PROPERTY CXX_STANDARD 20)
