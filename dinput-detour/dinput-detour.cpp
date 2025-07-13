@@ -58,16 +58,13 @@ BOOL WINAPI RoutedCreateProcessW(
 
 	printf("Calling DetourCreateProcessWithDllExW(,%hs)\n", s_szDllPath);
 
-	BOOL rv = 0;
-	__try {
-		rv = DetourCreateProcessWithDllExW(
-		    lpApplicationName, lpCommandLine, lpProcessAttributes,
-		    lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment,
-		    lpCurrentDirectory, lpStartupInfo, lpProcessInformation,
-		    s_szDllPath, RealCreateProcessW);
-	} __finally {
-		printf("CreateProcessW(,,,,,,,,,) -> %x\n", rv);
-	};
+	BOOL rv = DetourCreateProcessWithDllExW(
+	    lpApplicationName, lpCommandLine, lpProcessAttributes,
+	    lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment,
+	    lpCurrentDirectory, lpStartupInfo, lpProcessInformation, s_szDllPath,
+	    RealCreateProcessW);
+
+	printf("CreateProcessW(,,,,,,,,,) -> %x\n", rv);
 	return rv;
 }
 
