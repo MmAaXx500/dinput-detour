@@ -3,6 +3,9 @@
 #
 cmake_minimum_required (VERSION 3.10)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
+
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
@@ -26,6 +29,10 @@ function(copy_binary_to_bin target)
             COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_PDB_FILE:${target}>" "${output_dir}/"
         )
     endif()
+endfunction()
+
+function(enable_warns target)
+    target_compile_options(${target} PRIVATE /W4 /WX)
 endfunction()
 
 file(CREATE_LINK "${CMAKE_BINARY_DIR}/compile_commands.json" "${CMAKE_SOURCE_DIR}/compile_commands.json" SYMBOLIC)
