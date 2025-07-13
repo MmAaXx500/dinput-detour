@@ -6,9 +6,7 @@
 add_executable (withdll "withdll.cpp")
 copy_binary_to_bin(withdll)
 
-add_dependencies(withdll detours)
-target_include_directories(withdll PRIVATE ${DETOURS_INCLUDE_DIRS})
-target_link_libraries(withdll PRIVATE ${DETOURS_LIBRARY})
+target_link_libraries(withdll PRIVATE detours)
 
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)

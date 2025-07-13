@@ -40,32 +40,8 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     set(BUILD_TOOLS False CACHE BOOL "Enable building tools (setdll, withdll)")
 endif()
 
-include(ExternalProject)
-ExternalProject_Add(detours
-    GIT_REPOSITORY "https://github.com/microsoft/Detours.git"
-    GIT_TAG 9764ceb
-    BUILD_IN_SOURCE true
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND 
-        "cd" "src" "&&"
-        "nmake" "/nologo" "DETOURS_TARGET_PROCESSOR=${DETOURS_TARGET_PROCESSOR}"
-    INSTALL_COMMAND ""
-    TEST_COMMAND ""
-    BUILD_BYPRODUCTS
-        "detours-prefix/src/detours/lib.X64/detours.lib"
-        "detours-prefix/src/detours/lib.X86/detours.lib")
+add_subdirectory("vendor/detours")
 
-ExternalProject_Get_Property(detours SOURCE_DIR)
-set(EXT_DETOURS_DIR ${SOURCE_DIR})
-set(DETOURS_INCLUDE_DIRS "${EXT_DETOURS_DIR}/include")
-if(DETOURS_BITS EQUAL 64)
-    set(DETOURS_LIB_DIR "${EXT_DETOURS_DIR}/lib.X64")
-else()
-    set(DETOURS_LIB_DIR "${EXT_DETOURS_DIR}/lib.X86")
-endif()
-set(DETOURS_LIBRARY "${DETOURS_LIB_DIR}/detours.lib")
-
-# Include sub-projects.
 add_subdirectory("dinput-detour")
 
 if(BUILD_TOOLS)
