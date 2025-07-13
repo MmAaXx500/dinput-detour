@@ -2,15 +2,22 @@
   "version": 3,
   "configurePresets": [
     {
-      "name": "windows-base",
+      "name": "base",
       "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe",
         "CMAKE_EXPORT_COMPILE_COMMANDS": true
+      }
+    },
+    {
+      "name": "msvc-base",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
       },
       "condition": {
         "type": "equals",
@@ -19,62 +26,88 @@
       }
     },
     {
-      "name": "x64-debug",
-      "displayName": "x64 Debug",
-      "inherits": "windows-base",
+      "name": "common-debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "common-release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "msvc-x64-debug",
+      "displayName": "MSVC x64 Debug",
+      "inherits": [
+        "common-debug",
+        "msvc-base"
+      ],
       "architecture": {
         "value": "x64",
         "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "x64-release",
-      "displayName": "x64 Release",
-      "inherits": "x64-debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+      "name": "msvc-x64-release",
+      "displayName": "MSVC x64 Release",
+      "inherits": [
+        "common-release",
+        "msvc-base"
+      ],
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
       }
     },
     {
-      "name": "x86-debug",
-      "displayName": "x86 Debug",
-      "inherits": "windows-base",
+      "name": "msvc-x86-debug",
+      "displayName": "MSVC x86 Debug",
+      "inherits": [
+        "common-debug",
+        "msvc-base"
+      ],
       "architecture": {
         "value": "x86",
         "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "x86-release",
-      "displayName": "x86 Release",
-      "inherits": "x86-debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+      "name": "msvc-x86-release",
+      "displayName": "MSVC x86 Release",
+      "inherits": [
+        "common-release",
+        "msvc-base"
+      ],
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "x64-debug",
-      "configurePreset": "x64-debug"
+      "name": "msvc-x64-debug",
+      "displayName": "MSVC x64 Debug",
+      "configurePreset": "msvc-x64-debug"
     },
     {
-      "name": "x64-release",
-      "configurePreset": "x64-release"
+      "name": "msvc-x64-release",
+      "displayName": "MSVC x64 Release",
+      "configurePreset": "msvc-x64-release"
     },
     {
-      "name": "x86-debug",
-      "configurePreset": "x86-debug"
+      "name": "msvc-x86-debug",
+      "displayName": "MSVC x86 Debug",
+      "configurePreset": "msvc-x86-debug"
     },
     {
-      "name": "x86-release",
-      "configurePreset": "x86-release"
+      "name": "msvc-x86-release",
+      "displayName": "MSVC x86 Release",
+      "configurePreset": "msvc-x86-release"
     }
   ]
 }

@@ -40,16 +40,16 @@ It should work out of the box with the CMake extensions installed.
 
 You need the appropriate command prompts to build x86 and x64 versions. Use `x64 Native Tools` for x64, and `x64_x86 Cross Tools` for x86. These are known to work.
 
-In the `x64` prompt, you can build the `x64-debug` and `x64-release` presets. In the `x64_x86` prompt, the `x86-debug` and `x86-release` presets are usable.
+In the `x64` prompt, you can build the `msvc-x64-*` presets. In the `x64_x86` prompt, the `msvc-x86-*` presets are usable.
 
 To configure the project:
 
 ```
-cmake.exe --preset x64-release
+cmake.exe --preset msvc-x64-release
 ```
 
 To build:
 
 ```
-cmake.exe --build --preset x64-release
+cmake.exe --build --preset msvc-x64-release
 ```
