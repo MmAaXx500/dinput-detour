@@ -6,16 +6,16 @@
 typedef struct _GUID GUID;
 
 #define LOG_PRE(fmt, ...)                                                      \
-	logger->write("{} [pre ]: " fmt, __func__, __VA_ARGS__)
+	logger->write("{} [pre ]: " fmt, __func__ __VA_OPT__(, ) __VA_ARGS__)
 #define LOG_POST(fmt, ...)                                                     \
-	logger->write("{} [post]: " fmt, __func__, __VA_ARGS__)
+	logger->write("{} [post]: " fmt, __func__ __VA_OPT__(, ) __VA_ARGS__)
 #define LOG_ERR(fmt, ...)                                                      \
-	logger->write("{} [err ]: " fmt, __func__, __VA_ARGS__)
+	logger->write("{} [err ]: " fmt, __func__ __VA_OPT__(, ) __VA_ARGS__)
 #define LOG_WARN(fmt, ...)                                                     \
-	logger->write("{} [warn]: " fmt, __func__, __VA_ARGS__)
+	logger->write("{} [warn]: " fmt, __func__ __VA_OPT__(, ) __VA_ARGS__)
 #define LOG_INFO(fmt, ...)                                                     \
-	logger->write("{} [info]: " fmt, __func__, __VA_ARGS__)
-#define LOG(fmt, ...) logger->write(fmt, __VA_ARGS__)
+	logger->write("{} [info]: " fmt, __func__ __VA_OPT__(, ) __VA_ARGS__)
+#define LOG(fmt, ...) logger->write(fmt __VA_OPT__(, ) __VA_ARGS__)
 
 class Logger;
 extern Logger *logger;

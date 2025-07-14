@@ -23,7 +23,7 @@ function(copy_binary_to_bin target)
         COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:${target}>" "${output_dir}/"
     )
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND MSVC)
         add_custom_command(
             TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_PDB_FILE:${target}>" "${output_dir}/"
@@ -32,7 +32,11 @@ function(copy_binary_to_bin target)
 endfunction()
 
 function(enable_warns target)
-    target_compile_options(${target} PRIVATE /W4 /WX)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4 /WX)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    endif()
 endfunction()
 
 file(CREATE_LINK "${CMAKE_BINARY_DIR}/compile_commands.json" "${CMAKE_SOURCE_DIR}/compile_commands.json" SYMBOLIC)
@@ -43,6 +47,11 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     set(DETOURS_BITS 32)
     set(BUILD_TOOLS False CACHE BOOL "Enable building tools (setdll, withdll)")
+endif()
+
+if(MSVC)
+    # __VA_OPT__
+    add_compile_options(/Zc:preprocessor)
 endif()
 
 add_subdirectory("vendor/detours")

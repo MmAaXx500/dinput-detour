@@ -34,9 +34,14 @@ Regardless of the method used, build files are placed in the `out/build/<preset-
 
 ### Visual Studio / Visual Studio Code
 
-It should work out of the box with the CMake extensions installed.
+These combinations known to work out of the box:
+ - Visual Studio + MSVC (Windows)
+ - Visual Studio Code + MSVC (Windows)
+ - Visual Studio Code + MinGW (Linux)
 
-### CLI (Windows)
+MinGW on Windows is not working right now. Use the [CLI](#cli-windows-mingw) method.
+
+### CLI (Windows MSVC)
 
 You need the appropriate command prompts to build x86 and x64 versions. Use `x64 Native Tools` for x64, and `x64_x86 Cross Tools` for x86. These are known to work.
 
@@ -52,4 +57,22 @@ To build:
 
 ```
 cmake.exe --build --preset msvc-x64-release
+```
+
+### CLI (Windows MinGW)
+
+Install the MinGW toolchain in your environment (with MSYS for example) and choose one of the `mingw-*` presets. Use the appropriate 64bit or 32bit environment to build the respective presets.
+
+```
+cmake --preset mingw-x64-release
+cmake --build --preset mingw-x64-release
+```
+
+### CLI (Linux MinGW)
+
+Install the MinGW toolchain in your environment and choose one of the `mingw-*` presets.
+
+```
+cmake --preset mingw-x64-release
+cmake --build --preset mingw-x64-release
 ```

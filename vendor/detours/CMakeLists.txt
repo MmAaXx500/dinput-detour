@@ -27,4 +27,11 @@ file(COPY
     ${DETOURS_SRC}/detver.h
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/${DETOURS_INCLUDE}")
 
+# supress all warnings
+if(MSVC)
+    target_compile_options(detours PRIVATE "/w")
+else()
+    target_compile_options(detours PRIVATE "-w")
+endif()
+
 target_include_directories(detours INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/${DETOURS_INCLUDE}")

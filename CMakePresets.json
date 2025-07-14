@@ -26,6 +26,28 @@
       }
     },
     {
+      "name": "mingw-base64",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc",
+        "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++",
+        "CMAKE_RC_COMPILER": "x86_64-w64-mingw32-windres"
+      }
+    },
+    {
+      "name": "mingw-base32",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_C_COMPILER": "i686-w64-mingw32-gcc",
+        "CMAKE_CXX_COMPILER": "i686-w64-mingw32-g++",
+        "CMAKE_RC_COMPILER": "i686-w64-mingw32-windres"
+      }
+    },
+    {
       "name": "common-debug",
       "hidden": true,
       "cacheVariables": {
@@ -86,6 +108,38 @@
         "value": "x86",
         "strategy": "external"
       }
+    },
+    {
+      "name": "mingw-x64-debug",
+      "displayName": "MingGW x64 Debug",
+      "inherits": [
+        "common-debug",
+        "mingw-base64"
+      ]
+    },
+    {
+      "name": "mingw-x64-release",
+      "displayName": "MingGW x64 Release",
+      "inherits": [
+        "common-release",
+        "mingw-base64"
+      ]
+    },
+    {
+      "name": "mingw-x86-debug",
+      "displayName": "MingGW x86 Debug",
+      "inherits": [
+        "common-debug",
+        "mingw-base32"
+      ]
+    },
+    {
+      "name": "mingw-x86-release",
+      "displayName": "MingGW x86 Release",
+      "inherits": [
+        "common-release",
+        "mingw-base32"
+      ]
     }
   ],
   "buildPresets": [
@@ -108,6 +162,26 @@
       "name": "msvc-x86-release",
       "displayName": "MSVC x86 Release",
       "configurePreset": "msvc-x86-release"
+    },
+    {
+      "name": "mingw-x64-debug",
+      "displayName": "MingGW x64 Debug",
+      "configurePreset": "mingw-x64-debug"
+    },
+    {
+      "name": "mingw-x64-release",
+      "displayName": "MingGW x64 Release",
+      "configurePreset": "mingw-x64-release"
+    },
+    {
+      "name": "mingw-x86-debug",
+      "displayName": "MingGW x86 Debug",
+      "configurePreset": "mingw-x86-debug"
+    },
+    {
+      "name": "mingw-x86-release",
+      "displayName": "MingGW x86 Release",
+      "configurePreset": "mingw-x86-release"
     }
   ]
 }
