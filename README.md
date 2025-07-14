@@ -25,8 +25,59 @@ Typically, you'll need `withdll.exe` and the `dinput-detour*.dll`s. Use the 64-b
 To launch an application with DInput Detour injected:
 
 ```
-withdll.exe -d:dinput-detour64.dll my64bit-program.exe
+withdll.exe /d:dinput-detour64.dll my64bit-program.exe
 ```
+
+### Steam (Windows)
+
+Starting a Steam game on windows is straightforward. In the game's launch options field use this command.
+
+```
+X:\path\to\withdll.exe -d:X:\path\to\dinput-detour64.dll %command%
+```
+
+### Steam (Linux)
+
+On Linux the situation is more complex because steam uses various wrappers to launch a game. In general this oneliner should cover most cases.
+
+The following command is unreadable, but it can be copied and used in the Steam launch options. Don't forget to change the paths mentioned bellow.
+
+```
+PROTON_LOG=1 STEAM_COMPAT_MOUNTS="/path" bash -c 'args=(); withdll=0; winconv=0; for ((i=$#; i>0; i--)); do if [[ "${!i}" == "waitforexitandrun" && $withdll -eq 0 ]]; then args=("waitforexitandrun" "Z:\\path\\to\\withdll.exe" "/d:Z:\\path\\to\\dinput-detour64.dll" "${args[@]}") && withdll=1; elif [[ ${!i} == /* && ${!i} == *.exe && $winconv -eq 0 ]]; then args=("Z:${!i//\//\\\\}" "${args[@]}") && winconv=1; else args=("${!i}" "${args[@]}"); fi; done; exec "${args[@]}"' -- %command%
+```
+
+Here is a readable format.
+
+```
+PROTON_LOG=1 STEAM_COMPAT_MOUNTS="/path" bash -c '
+    args=();
+    withdll=0;
+    winconv=0; 
+    for ((i=$#; i>0; i--)); do
+        if [[ "${!i}" == "waitforexitandrun" && $withdll -eq 0 ]]; then
+            args=("waitforexitandrun"
+                "Z:\\path\\to\\withdll.exe"
+                "/d:Z:\\path\\to\\dinput-detour64.dll"
+                "${args[@]}")
+            withdll=1;
+        elif [[ ${!i} == /* && ${!i} == *.exe && $winconv -eq 0 ]]; then
+            args=("Z:${!i//\//\\\\}" "${args[@]}")
+            winconv=1;
+        else
+            args=("${!i}" "${args[@]}");
+        fi;
+    done;
+    exec "${args[@]}"
+' -- %command%
+```
+
+`Z:\\path\\to\\withdll.exe` must be changed to the real location of the file. Use backslashes to be safe.
+
+`/d:Z:\\path\\to\\dinput-detour64.dll` must be changed to the real location of the dll. Use backslashes to be safe.
+
+`PROTON_LOG=1` is optional, but useful to have logs to see if something went wrong. The log is located at `~/steam-<gemeid>.log`.
+
+`STEAM_COMPAT_MOUNTS="/path"` is also optional, but required if the game, `withdll.exe`, or `dinput-detour*.dll` is outside of the steam library folder or the home folder. The path must point to the same device where the files are located. For example, / does not work for other mounted drives, it only works for the root file system.
 
 ## Compile from Source
 
