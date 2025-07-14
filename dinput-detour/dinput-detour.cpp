@@ -21,29 +21,32 @@ using namespace std;
 
 static CHAR s_szDllPath[MAX_PATH];
 
-typedef HRESULT(WINAPI DirectInput8CreateFn)(HINSTANCE hinst, DWORD dwVersion,
-                                             REFIID riidltf, LPVOID *ppvOut,
-                                             LPUNKNOWN punkOuter);
+typedef HRESULT WINAPI DirectInput8CreateFn(HINSTANCE hinst, DWORD dwVersion,
+                                            REFIID riidltf, LPVOID *ppvOut,
+                                            LPUNKNOWN punkOuter);
 
-static auto RealDirectInput8Create = reinterpret_cast<DirectInput8CreateFn *>(
-    GetProcAddress(GetModuleHandleA("dinput8.dll"), "DirectInput8Create"));
+static auto RealDirectInput8Create =
+    reinterpret_cast<DirectInput8CreateFn *>(reinterpret_cast<void *>(
+        GetProcAddress(GetModuleHandleA("dinput8.dll"), "DirectInput8Create")));
 
-typedef BOOL(WINAPI CreateProcessWFn)(
+typedef BOOL WINAPI CreateProcessWFn(
     LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
     LPSECURITY_ATTRIBUTES lpProcessAttributes,
     LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles,
     DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory,
     LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
-static auto RealCreateProcessW = reinterpret_cast<CreateProcessWFn *>(
-    GetProcAddress(GetModuleHandleA("kernelbase.dll"), "CreateProcessW"));
+static auto RealCreateProcessW =
+    reinterpret_cast<CreateProcessWFn *>(reinterpret_cast<void *>(
+        GetProcAddress(GetModuleHandleA("kernelbase.dll"), "CreateProcessW")));
 
 typedef HRESULT WINAPI CoCreateInstanceFn(REFCLSID rclsid, LPUNKNOWN pUnkOuter,
                                           DWORD dwClsContext, REFIID riid,
                                           LPVOID *ppv);
 
-static auto RealCoCreateInstance = reinterpret_cast<CoCreateInstanceFn *>(
-    GetProcAddress(GetModuleHandleA("ole32.dll"), "CoCreateInstance"));
+static auto RealCoCreateInstance =
+    reinterpret_cast<CoCreateInstanceFn *>(reinterpret_cast<void *>(
+        GetProcAddress(GetModuleHandleA("ole32.dll"), "CoCreateInstance")));
 
 BOOL WINAPI RoutedCreateProcessW(
     LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
@@ -51,12 +54,25 @@ BOOL WINAPI RoutedCreateProcessW(
     LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles,
     DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory,
     LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation) {
-	printf("CreateProcessW(%ls,%ls,%p,%p,%x,%lx,%p,%ls,%p,%p)\n",
-	       lpApplicationName, lpCommandLine, lpProcessAttributes,
-	       lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment,
-	       lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+	LOG_PRE(
+	    "lpApplicationName: {}, lpCommandLine: {}, lpProcessAttributes: {}, "
+	    "lpThreadAttributes: {}, bInheritHandles: {}, dwCreationFlags: {:x}, "
+	    "lpEnvironment: {}, lpCurrentDirectory: {}, lpStartupInfo: {}, "
+	    "lpProcessInformation: {}\n",
+	    static_cast<const void *>(lpApplicationName),
+	    static_cast<const void *>(lpCommandLine),
+	    static_cast<void *>(lpProcessAttributes),
+	    static_cast<void *>(lpThreadAttributes), bInheritHandles,
+	    dwCreationFlags, static_cast<void *>(lpEnvironment),
+	    static_cast<const void *>(lpCurrentDirectory),
+	    static_cast<void *>(lpStartupInfo),
+	    static_cast<void *>(lpProcessInformation));
 
-	printf("Calling DetourCreateProcessWithDllExW(,%hs)\n", s_szDllPath);
+	LOG_INFO("Calling DetourCreateProcessWithDllExW lpApplicationName: {},"
+	         "lpCommandLine: {}, lpCurrentDirectory: {}, lpDllName: {}\n",
+	         wstring_to_string(lpApplicationName),
+	         wstring_to_string(lpCommandLine),
+	         wstring_to_string(lpCurrentDirectory), s_szDllPath);
 
 	BOOL rv = DetourCreateProcessWithDllExW(
 	    lpApplicationName, lpCommandLine, lpProcessAttributes,
@@ -64,7 +80,7 @@ BOOL WINAPI RoutedCreateProcessW(
 	    lpCurrentDirectory, lpStartupInfo, lpProcessInformation, s_szDllPath,
 	    RealCreateProcessW);
 
-	printf("CreateProcessW(,,,,,,,,,) -> %x\n", rv);
+	LOG_POST("rv: {}\n", rv);
 	return rv;
 }
 
