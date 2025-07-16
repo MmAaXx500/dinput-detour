@@ -33,6 +33,8 @@ HRESULT WINAPI RoutedDirectInput8CreateDeviceA(
 				             RoutedDirectInputDevice8SetPropertyA);
 				DetourAttach(&RealDirectInputDevice8VtblA.SetDataFormat,
 				             RoutedDirectInputDevice8SetDataFormatA);
+				DetourAttach(&RealDirectInputDevice8VtblA.SetEventNotification,
+				             RoutedDirectInputDevice8SetEventNotificationA);
 				DetourAttach(&RealDirectInputDevice8VtblA.EnumEffects,
 				             RoutedDirectInputDevice8EnumEffectsA);
 				DetourAttach(&RealDirectInputDevice8VtblA.GetDeviceInfo,
@@ -71,6 +73,8 @@ HRESULT WINAPI RoutedDirectInput8CreateDeviceW(
 				             RoutedDirectInputDevice8SetPropertyW);
 				DetourAttach(&RealDirectInputDevice8VtblW.SetDataFormat,
 				             RoutedDirectInputDevice8SetDataFormatW);
+				DetourAttach(&RealDirectInputDevice8VtblW.SetEventNotification,
+				             RoutedDirectInputDevice8SetEventNotificationW);
 				DetourAttach(&RealDirectInputDevice8VtblW.EnumEffects,
 				             RoutedDirectInputDevice8EnumEffectsW);
 				DetourAttach(&RealDirectInputDevice8VtblW.GetDeviceInfo,

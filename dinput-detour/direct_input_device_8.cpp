@@ -497,6 +497,34 @@ HRESULT WINAPI RoutedDirectInputDevice8SetDataFormatW(
 	return ret;
 }
 
+HRESULT WINAPI RoutedDirectInputDevice8SetEventNotificationA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, HANDLE hEvent) {
+	LOG_PRE("lpDirectInputDevice: {}, hEvent: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<void *>(hEvent));
+
+	HRESULT ret = RealDirectInputDevice8VtblA.SetEventNotification(
+	    lpDirectInputDevice, hEvent);
+
+	LOG_POST("ret: {}\n", ret);
+
+	return ret;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8SetEventNotificationW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, HANDLE hEvent) {
+	LOG_PRE("lpDirectInputDevice: {}, hEvent: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<void *>(hEvent));
+
+	HRESULT ret = RealDirectInputDevice8VtblW.SetEventNotification(
+	    lpDirectInputDevice, hEvent);
+
+	LOG_POST("ret: {}\n", ret);
+
+	return ret;
+}
+
 BOOL WINAPI EnumEffectsCallbackA(LPCDIEFFECTINFOA pdei, LPVOID pvRef) {
 	LOG_PRE("pdei: {}, pvRef: {}\n", reinterpret_cast<const void *>(pdei),
 	        pvRef);

@@ -33,6 +33,12 @@ HRESULT WINAPI RoutedDirectInputDevice8SetDataFormatA(
 HRESULT WINAPI RoutedDirectInputDevice8SetDataFormatW(
     LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPCDIDATAFORMAT lpdf);
 
+HRESULT WINAPI RoutedDirectInputDevice8SetEventNotificationA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, HANDLE hEvent);
+
+HRESULT WINAPI RoutedDirectInputDevice8SetEventNotificationW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, HANDLE hEvent);
+
 HRESULT WINAPI RoutedDirectInputDevice8EnumEffectsA(
     LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
     LPDIENUMEFFECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwEffType);
