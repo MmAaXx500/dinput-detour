@@ -119,6 +119,119 @@ static string DIEPToString(DWORD dwStaticParams) {
 	return ret;
 }
 
+static string DIDCToString(DWORD dwFlags) {
+	string ret;
+
+	if (dwFlags & DIDC_ATTACHED)
+		ret += "DIDC_ATTACHED ";
+	if (dwFlags & DIDC_POLLEDDEVICE)
+		ret += "DIDC_POLLEDDEVICE ";
+	if (dwFlags & DIDC_EMULATED)
+		ret += "DIDC_EMULATED ";
+	if (dwFlags & DIDC_POLLEDDATAFORMAT)
+		ret += "DIDC_POLLEDDATAFORMAT ";
+	if (dwFlags & DIDC_FORCEFEEDBACK)
+		ret += "DIDC_FORCEFEEDBACK ";
+	if (dwFlags & DIDC_FFATTACK)
+		ret += "DIDC_FFATTACK ";
+	if (dwFlags & DIDC_FFFADE)
+		ret += "DIDC_FFFADE ";
+	if (dwFlags & DIDC_SATURATION)
+		ret += "DIDC_SATURATION ";
+	if (dwFlags & DIDC_POSNEGCOEFFICIENTS)
+		ret += "DIDC_POSNEGCOEFFICIENTS ";
+	if (dwFlags & DIDC_POSNEGSATURATION)
+		ret += "DIDC_POSNEGSATURATION ";
+	if (dwFlags & DIDC_DEADBAND)
+		ret += "DIDC_DEADBAND ";
+	if (dwFlags & DIDC_STARTDELAY)
+		ret += "DIDC_STARTDELAY ";
+	if (dwFlags & DIDC_ALIAS)
+		ret += "DIDC_ALIAS ";
+	if (dwFlags & DIDC_PHANTOM)
+		ret += "DIDC_PHANTOM ";
+	if (dwFlags & DIDC_HIDDEN)
+		ret += "DIDC_HIDDEN ";
+
+	if (ret.empty())
+		return format("Unknown DIDC: {:#x}", dwFlags);
+
+	return ret;
+}
+
+static string DIDEVCAPSToString(const DIDEVCAPS &lpDIDevCaps) {
+	string str = format("lpDIDevCaps dwSize: {}", lpDIDevCaps.dwSize);
+
+	if (lpDIDevCaps.dwSize
+	    >= offsetof(DIDEVCAPS, dwFlags) + sizeof(lpDIDevCaps.dwFlags))
+		str += format(", dwFlags: {}({:#x})", DIDCToString(lpDIDevCaps.dwFlags),
+		              lpDIDevCaps.dwFlags);
+	if (lpDIDevCaps.dwSize
+	    >= offsetof(DIDEVCAPS, dwDevType) + sizeof(lpDIDevCaps.dwDevType))
+		str += format(", dwDevType: {:#x}", lpDIDevCaps.dwDevType);
+	if (lpDIDevCaps.dwSize
+	    >= offsetof(DIDEVCAPS, dwAxes) + sizeof(lpDIDevCaps.dwAxes))
+		str += format(", dwAxes: {}", lpDIDevCaps.dwAxes);
+	if (lpDIDevCaps.dwSize
+	    >= offsetof(DIDEVCAPS, dwButtons) + sizeof(lpDIDevCaps.dwButtons))
+		str += format(", dwButtons: {}", lpDIDevCaps.dwButtons);
+	if (lpDIDevCaps.dwSize
+	    >= offsetof(DIDEVCAPS, dwPOVs) + sizeof(lpDIDevCaps.dwPOVs))
+		str += format(", dwPOVs: {}", lpDIDevCaps.dwPOVs);
+	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFFSamplePeriod)
+	                              + sizeof(lpDIDevCaps.dwFFSamplePeriod))
+		str += format(", dwFFSamplePeriod: {}", lpDIDevCaps.dwFFSamplePeriod);
+	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFFMinTimeResolution)
+	                              + sizeof(lpDIDevCaps.dwFFMinTimeResolution))
+		str += format(", dwFFMinTimeResolution: {}",
+		              lpDIDevCaps.dwFFMinTimeResolution);
+	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFirmwareRevision)
+	                              + sizeof(lpDIDevCaps.dwFirmwareRevision))
+		str +=
+		    format(", dwFirmwareRevision: {}", lpDIDevCaps.dwFirmwareRevision);
+	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwHardwareRevision)
+	                              + sizeof(lpDIDevCaps.dwHardwareRevision))
+		str +=
+		    format(", dwHardwareRevision: {}", lpDIDevCaps.dwHardwareRevision);
+	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFFDriverVersion)
+	                              + sizeof(lpDIDevCaps.dwFFDriverVersion))
+		str += format(", dwFFDriverVersion: {}", lpDIDevCaps.dwFFDriverVersion);
+
+	return str;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps) {
+	LOG_PRE("lpDirectInputDevice: {}, lpDIDevCaps: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<void *>(lpDIDevCaps));
+
+	HRESULT ret = RealDirectInputDevice8VtblA.GetCapabilities(
+	    lpDirectInputDevice, lpDIDevCaps);
+
+	if (SUCCEEDED(ret) && lpDIDevCaps)
+		LOG_INFO("{}\n", DIDEVCAPSToString(*lpDIDevCaps));
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps) {
+	LOG_PRE("lpDirectInputDevice: {}, lpDIDevCaps: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<void *>(lpDIDevCaps));
+
+	HRESULT ret = RealDirectInputDevice8VtblW.GetCapabilities(
+	    lpDirectInputDevice, lpDIDevCaps);
+
+	if (SUCCEEDED(ret) && lpDIDevCaps)
+		LOG_INFO("{}\n", DIDEVCAPSToString(*lpDIDevCaps));
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
 BOOL WINAPI EnumEffectsCallbackA(LPCDIEFFECTINFOA pdei, LPVOID pvRef) {
 	LOG_PRE("pdei: {}, pvRef: {}\n", reinterpret_cast<const void *>(pdei),
 	        pvRef);
@@ -357,6 +470,10 @@ void CollectDeviceInfoA(const LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
 	lpDirectInputDevice->lpVtbl->GetDeviceInfo(lpDirectInputDevice,
 	                                           &deviceInfo);
 
+	DIDEVCAPS devCaps = {};
+	devCaps.dwSize = sizeof(DIDEVCAPS);
+	lpDirectInputDevice->lpVtbl->GetCapabilities(lpDirectInputDevice, &devCaps);
+
 	RealDirectInputDevice8VtblA.EnumEffects(
 	    lpDirectInputDevice, EnumEffectsCallbackA, nullptr, DIEFT_ALL);
 
@@ -376,6 +493,10 @@ void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
 	deviceInfo.dwSize = sizeof(DIDEVICEINSTANCEW);
 	lpDirectInputDevice->lpVtbl->GetDeviceInfo(lpDirectInputDevice,
 	                                           &deviceInfo);
+
+	DIDEVCAPS devCaps = {};
+	devCaps.dwSize = sizeof(DIDEVCAPS);
+	lpDirectInputDevice->lpVtbl->GetCapabilities(lpDirectInputDevice, &devCaps);
 
 	RealDirectInputDevice8VtblW.EnumEffects(
 	    lpDirectInputDevice, EnumEffectsCallbackW, nullptr, DIEFT_ALL);

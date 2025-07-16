@@ -7,6 +7,12 @@
 extern IDirectInputDevice8AVtbl RealDirectInputDevice8VtblA;
 extern IDirectInputDevice8WVtbl RealDirectInputDevice8VtblW;
 
+HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps);
+
+HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps);
+
 HRESULT WINAPI RoutedDirectInputDevice8EnumEffectsA(
     LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
     LPDIENUMEFFECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwEffType);

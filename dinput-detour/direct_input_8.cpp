@@ -25,6 +25,8 @@ HRESULT WINAPI RoutedDirectInput8CreateDeviceA(
 			RealDirectInputDevice8VtblA = *((*lplpDirectInputDevice)->lpVtbl);
 
 			DetourTransaction([]() {
+				DetourAttach(&RealDirectInputDevice8VtblA.GetCapabilities,
+				             RoutedDirectInputDevice8GetCapabilitiesA);
 				DetourAttach(&RealDirectInputDevice8VtblA.EnumEffects,
 				             RoutedDirectInputDevice8EnumEffectsA);
 				DetourAttach(&RealDirectInputDevice8VtblA.GetDeviceInfo,
@@ -55,6 +57,8 @@ HRESULT WINAPI RoutedDirectInput8CreateDeviceW(
 			RealDirectInputDevice8VtblW = *((*lplpDirectInputDevice)->lpVtbl);
 
 			DetourTransaction([]() {
+				DetourAttach(&RealDirectInputDevice8VtblW.GetCapabilities,
+				             RoutedDirectInputDevice8GetCapabilitiesW);
 				DetourAttach(&RealDirectInputDevice8VtblW.EnumEffects,
 				             RoutedDirectInputDevice8EnumEffectsW);
 				DetourAttach(&RealDirectInputDevice8VtblW.GetDeviceInfo,
