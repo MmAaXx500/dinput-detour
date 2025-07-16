@@ -53,6 +53,12 @@ HRESULT WINAPI RoutedDirectInputDevice8GetDeviceInfoA(
 HRESULT WINAPI RoutedDirectInputDevice8GetDeviceInfoW(
     LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPDIDEVICEINSTANCEW pdidi);
 
+HRESULT WINAPI RoutedDirectInputDevice8GetForceFeedbackStateA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDWORD pdwOut);
+
+HRESULT WINAPI RoutedDirectInputDevice8GetForceFeedbackStateW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPDWORD pdwOut);
+
 /*
  * Collect device information for a DirectInput device.
  * This must be called after IDirectInputDevice8 is hooked

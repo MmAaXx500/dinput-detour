@@ -39,6 +39,8 @@ HRESULT WINAPI RoutedDirectInput8CreateDeviceA(
 				             RoutedDirectInputDevice8EnumEffectsA);
 				DetourAttach(&RealDirectInputDevice8VtblA.GetDeviceInfo,
 				             RoutedDirectInputDevice8GetDeviceInfoA);
+				DetourAttach(&RealDirectInputDevice8VtblA.GetForceFeedbackState,
+				             RoutedDirectInputDevice8GetForceFeedbackStateA);
 			});
 		}
 
@@ -79,6 +81,8 @@ HRESULT WINAPI RoutedDirectInput8CreateDeviceW(
 				             RoutedDirectInputDevice8EnumEffectsW);
 				DetourAttach(&RealDirectInputDevice8VtblW.GetDeviceInfo,
 				             RoutedDirectInputDevice8GetDeviceInfoW);
+				DetourAttach(&RealDirectInputDevice8VtblW.GetForceFeedbackState,
+				             RoutedDirectInputDevice8GetForceFeedbackStateW);
 			});
 		}
 

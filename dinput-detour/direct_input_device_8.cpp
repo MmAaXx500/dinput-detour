@@ -360,6 +360,34 @@ static string DIPROPHEADERToString(REFGUID rguidProp,
 	return str;
 }
 
+static string DIGFFSToString(DWORD ffstate) {
+	if (ffstate & DIGFFS_EMPTY)
+		return "DIGFFS_EMPTY";
+	if (ffstate & DIGFFS_STOPPED)
+		return "DIGFFS_STOPPED";
+	if (ffstate & DIGFFS_PAUSED)
+		return "DIGFFS_PAUSED";
+	if (ffstate & DIGFFS_ACTUATORSON)
+		return "DIGFFS_ACTUATORSON";
+	if (ffstate & DIGFFS_ACTUATORSOFF)
+		return "DIGFFS_ACTUATORSOFF";
+	if (ffstate & DIGFFS_POWERON)
+		return "DIGFFS_POWERON";
+	if (ffstate & DIGFFS_POWEROFF)
+		return "DIGFFS_POWEROFF";
+	if (ffstate & DIGFFS_SAFETYSWITCHON)
+		return "DIGFFS_SAFETYSWITCHON";
+	if (ffstate & DIGFFS_SAFETYSWITCHOFF)
+		return "DIGFFS_SAFETYSWITCHOFF";
+	if (ffstate & DIGFFS_USERFFSWITCHON)
+		return "DIGFFS_USERFFSWITCHON";
+	if (ffstate & DIGFFS_USERFFSWITCHOFF)
+		return "DIGFFS_USERFFSWITCHOFF";
+	if (ffstate & DIGFFS_DEVICELOST)
+		return "DIGFFS_DEVICELOST";
+	return format("Unknown DIGFFS: {:#x}", ffstate);
+}
+
 HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesA(
     LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps) {
 	LOG_PRE("lpDirectInputDevice: {}, lpDIDevCaps: {}\n",
@@ -745,6 +773,40 @@ HRESULT WINAPI RoutedDirectInputDevice8GetDeviceInfoW(
 
 		LOG("\n");
 	}
+
+	return ret;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8GetForceFeedbackStateA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDWORD pdwOut) {
+	LOG_PRE("lpDirectInputDevice: {}, pdwOut: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<void *>(pdwOut));
+
+	HRESULT ret = RealDirectInputDevice8VtblA.GetForceFeedbackState(
+	    lpDirectInputDevice, pdwOut);
+
+	if (SUCCEEDED(ret) && pdwOut)
+		DIGFFSToString(*pdwOut);
+
+	LOG_POST("ret: {}\n", ret);
+
+	return ret;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8GetForceFeedbackStateW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPDWORD pdwOut) {
+	LOG_PRE("lpDirectInputDevice: {}, pdwOut: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<void *>(pdwOut));
+
+	HRESULT ret = RealDirectInputDevice8VtblW.GetForceFeedbackState(
+	    lpDirectInputDevice, pdwOut);
+
+	if (SUCCEEDED(ret) && pdwOut)
+		DIGFFSToString(*pdwOut);
+
+	LOG_POST("ret: {}\n", ret);
 
 	return ret;
 }
