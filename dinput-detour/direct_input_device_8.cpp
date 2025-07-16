@@ -1,5 +1,7 @@
+#include <array>
 #include <cstddef>
 #include <string>
+#include <string_view>
 #include <unordered_set>
 
 #include "direct_input_device_8.h"
@@ -33,6 +35,115 @@ struct EnumEffectsCallbackDataW {
 	PVOID realData;
 };
 
+constexpr static array<pair<DWORD, string_view>, 7> DIEFTTypeStringPairs = {{
+    {DIEFT_ALL, "DIEFT_ALL"},
+    {DIEFT_CONSTANTFORCE, "DIEFT_CONSTANTFORCE"},
+    {DIEFT_RAMPFORCE, "DIEFT_RAMPFORCE"},
+    {DIEFT_PERIODIC, "DIEFT_PERIODIC"},
+    {DIEFT_CONDITION, "DIEFT_CONDITION"},
+    {DIEFT_CUSTOMFORCE, "DIEFT_CUSTOMFORCE"},
+    {DIEFT_HARDWARE, "DIEFT_HARDWARE"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 7> DIEFTMaskStringPairs = {{
+    {DIEFT_FFATTACK, "DIEFT_FFATTACK"},
+    {DIEFT_FFFADE, "DIEFT_FFFADE"},
+    {DIEFT_SATURATION, "DIEFT_SATURATION"},
+    {DIEFT_POSNEGCOEFFICIENTS, "DIEFT_POSNEGCOEFFICIENTS"},
+    {DIEFT_POSNEGSATURATION, "DIEFT_POSNEGSATURATION"},
+    {DIEFT_DEADBAND, "DIEFT_DEADBAND"},
+    {DIEFT_STARTDELAY, "DIEFT_STARTDELAY"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 2> DIEPValueStringPairs = {{
+    {DIEP_ALLPARAMS_DX5, "DIEP_ALLPARAMS_DX5"},
+    {DIEP_ALLPARAMS, "DIEP_ALLPARAMS"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 13> DIEPMaskStringPairs = {{
+    {DIEP_DURATION, "DIEP_DURATION"},
+    {DIEP_SAMPLEPERIOD, "DIEP_SAMPLEPERIOD"},
+    {DIEP_GAIN, "DIEP_GAIN"},
+    {DIEP_TRIGGERBUTTON, "DIEP_TRIGGERBUTTON"},
+    {DIEP_TRIGGERREPEATINTERVAL, "DIEP_TRIGGERREPEATINTERVAL"},
+    {DIEP_AXES, "DIEP_AXES"},
+    {DIEP_DIRECTION, "DIEP_DIRECTION"},
+    {DIEP_ENVELOPE, "DIEP_ENVELOPE"},
+    {DIEP_TYPESPECIFICPARAMS, "DIEP_TYPESPECIFICPARAMS"},
+    {DIEP_STARTDELAY, "DIEP_STARTDELAY"},
+    {DIEP_START, "DIEP_START"},
+    {DIEP_NORESTART, "DIEP_NORESTART"},
+    {DIEP_NODOWNLOAD, "DIEP_NODOWNLOAD"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 15> DIDCStringPairs = {{
+    {DIDC_ATTACHED, "DIDC_ATTACHED"},
+    {DIDC_POLLEDDEVICE, "DIDC_POLLEDDEVICE"},
+    {DIDC_EMULATED, "DIDC_EMULATED"},
+    {DIDC_POLLEDDATAFORMAT, "DIDC_POLLEDDATAFORMAT"},
+    {DIDC_FORCEFEEDBACK, "DIDC_FORCEFEEDBACK"},
+    {DIDC_FFATTACK, "DIDC_FFATTACK"},
+    {DIDC_FFFADE, "DIDC_FFFADE"},
+    {DIDC_SATURATION, "DIDC_SATURATION"},
+    {DIDC_POSNEGCOEFFICIENTS, "DIDC_POSNEGCOEFFICIENTS"},
+    {DIDC_POSNEGSATURATION, "DIDC_POSNEGSATURATION"},
+    {DIDC_DEADBAND, "DIDC_DEADBAND"},
+    {DIDC_STARTDELAY, "DIDC_STARTDELAY"},
+    {DIDC_ALIAS, "DIDC_ALIAS"},
+    {DIDC_PHANTOM, "DIDC_PHANTOM"},
+    {DIDC_HIDDEN, "DIDC_HIDDEN"},
+}};
+
+const static array<pair<REFGUID, string_view>, 25> DIPROPStringPairs = {{
+    {DIPROP_BUFFERSIZE, "DIPROP_BUFFERSIZE"},
+    {DIPROP_AXISMODE, "DIPROP_AXISMODE"},
+    {DIPROP_GRANULARITY, "DIPROP_GRANULARITY"},
+    {DIPROP_RANGE, "DIPROP_RANGE"},
+    {DIPROP_DEADZONE, "DIPROP_DEADZONE"},
+    {DIPROP_SATURATION, "DIPROP_SATURATION"},
+    {DIPROP_FFGAIN, "DIPROP_FFGAIN"},
+    {DIPROP_FFLOAD, "DIPROP_FFLOAD"},
+    {DIPROP_AUTOCENTER, "DIPROP_AUTOCENTER"},
+    {DIPROP_CALIBRATIONMODE, "DIPROP_CALIBRATIONMODE"},
+    {DIPROP_CALIBRATION, "DIPROP_CALIBRATION"},
+    {DIPROP_GUIDANDPATH, "DIPROP_GUIDANDPATH"},
+    {DIPROP_INSTANCENAME, "DIPROP_INSTANCENAME"},
+    {DIPROP_PRODUCTNAME, "DIPROP_PRODUCTNAME"},
+    {DIPROP_JOYSTICKID, "DIPROP_JOYSTICKID"},
+    {DIPROP_GETPORTDISPLAYNAME, "DIPROP_GETPORTDISPLAYNAME"},
+    {DIPROP_PHYSICALRANGE, "DIPROP_PHYSICALRANGE"},
+    {DIPROP_LOGICALRANGE, "DIPROP_LOGICALRANGE"},
+    {DIPROP_KEYNAME, "DIPROP_KEYNAME"},
+    {DIPROP_CPOINTS, "DIPROP_CPOINTS"},
+    {DIPROP_APPDATA, "DIPROP_APPDATA"},
+    {DIPROP_SCANCODE, "DIPROP_SCANCODE"},
+    {DIPROP_VIDPID, "DIPROP_VIDPID"},
+    {DIPROP_USERNAME, "DIPROP_USERNAME"},
+    {DIPROP_TYPENAME, "DIPROP_TYPENAME"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 4> DIPHStringPairs = {{
+    {DIPH_DEVICE, "DIPH_DEVICE"},
+    {DIPH_BYOFFSET, "DIPH_BYOFFSET"},
+    {DIPH_BYID, "DIPH_BYID"},
+    {DIPH_BYUSAGE, "DIPH_BYUSAGE"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 12> DIGFFSStringPairs = {{
+    {DIGFFS_EMPTY, "DIGFFS_EMPTY"},
+    {DIGFFS_STOPPED, "DIGFFS_STOPPED"},
+    {DIGFFS_PAUSED, "DIGFFS_PAUSED"},
+    {DIGFFS_ACTUATORSON, "DIGFFS_ACTUATORSON"},
+    {DIGFFS_ACTUATORSOFF, "DIGFFS_ACTUATORSOFF"},
+    {DIGFFS_POWERON, "DIGFFS_POWERON"},
+    {DIGFFS_POWEROFF, "DIGFFS_POWEROFF"},
+    {DIGFFS_SAFETYSWITCHON, "DIGFFS_SAFETYSWITCHON"},
+    {DIGFFS_SAFETYSWITCHOFF, "DIGFFS_SAFETYSWITCHOFF"},
+    {DIGFFS_USERFFSWITCHON, "DIGFFS_USERFFSWITCHON"},
+    {DIGFFS_USERFFSWITCHOFF, "DIGFFS_USERFFSWITCHOFF"},
+    {DIGFFS_DEVICELOST, "DIGFFS_DEVICELOST"},
+}};
+
 static bool operator==(const DIDATAFORMAT &lhs, const DIDATAFORMAT &rhs) {
 	if (lhs.dwSize != rhs.dwSize || lhs.dwObjSize != rhs.dwObjSize
 	    || lhs.dwFlags != rhs.dwFlags || lhs.dwDataSize != rhs.dwDataSize
@@ -43,128 +154,61 @@ static bool operator==(const DIDATAFORMAT &lhs, const DIDATAFORMAT &rhs) {
 }
 
 static string DIEFTToString(DWORD dwEffType) {
-	string ret;
-
-	switch (DIEFT_GETTYPE(dwEffType)) {
-	case DIEFT_ALL:
-		ret = "DIEFT_ALL ";
-		break;
-	case DIEFT_CONSTANTFORCE:
-		ret = "DIEFT_CONSTANTFORCE ";
-		break;
-	case DIEFT_RAMPFORCE:
-		ret = "DIEFT_RAMPFORCE ";
-		break;
-	case DIEFT_PERIODIC:
-		ret = "DIEFT_PERIODIC ";
-		break;
-	case DIEFT_CONDITION:
-		ret = "DIEFT_CONDITION ";
-		break;
-	case DIEFT_CUSTOMFORCE:
-		ret = "DIEFT_CUSTOMFORCE ";
-		break;
-	case DIEFT_HARDWARE:
-		ret = "DIEFT_HARDWARE ";
-		break;
+	for (auto &&pair : DIEFTTypeStringPairs) {
+		if (DIEFT_GETTYPE(dwEffType) == pair.first)
+			return string(pair.second);
 	}
 
-	if (dwEffType & DIEFT_FFATTACK)
-		ret += "DIEFT_FFATTACK ";
-	if (dwEffType & DIEFT_FFFADE)
-		ret += "DIEFT_FFFADE ";
-	if (dwEffType & DIEFT_SATURATION)
-		ret += "DIEFT_SATURATION ";
-	if (dwEffType & DIEFT_POSNEGCOEFFICIENTS)
-		ret += "DIEFT_POSNEGCOEFFICIENTS ";
-	if (dwEffType & DIEFT_POSNEGSATURATION)
-		ret += "DIEFT_POSNEGSATURATION ";
-	if (dwEffType & DIEFT_DEADBAND)
-		ret += "DIEFT_DEADBAND ";
-	if (dwEffType & DIEFT_STARTDELAY)
-		ret += "DIEFT_STARTDELAY ";
+	string str;
+	for (auto &&pair : DIEFTMaskStringPairs) {
+		if (dwEffType & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
 
-	if (ret.length() == 0)
-		return format("Unknown DIEFT: {:#x}", dwEffType);
+	if (!str.empty())
+		return str;
 
-	return ret;
+	return format("Unknown DIEFT: {:#x}", dwEffType);
 }
 
 static string DIEPToString(DWORD dwStaticParams) {
-	string ret;
+	for (auto &&pair : DIEPValueStringPairs) {
+		if (dwStaticParams == pair.first)
+			return string(pair.second);
+	}
 
-	if (dwStaticParams == DIEP_ALLPARAMS_DX5)
-		return "DIEP_ALLPARAMS_DX5";
-	if (dwStaticParams == DIEP_ALLPARAMS)
-		return "DIEP_ALLPARAMS";
+	string str;
+	for (auto &&pair : DIEPMaskStringPairs) {
+		if (dwStaticParams & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
 
-	if (dwStaticParams & DIEP_DURATION)
-		ret += "DIEP_DURATION ";
-	if (dwStaticParams & DIEP_SAMPLEPERIOD)
-		ret += "DIEP_SAMPLEPERIOD ";
-	if (dwStaticParams & DIEP_GAIN)
-		ret += "DIEP_GAIN ";
-	if (dwStaticParams & DIEP_TRIGGERBUTTON)
-		ret += "DIEP_TRIGGERBUTTON ";
-	if (dwStaticParams & DIEP_TRIGGERREPEATINTERVAL)
-		ret += "DIEP_TRIGGERREPEATINTERVAL ";
-	if (dwStaticParams & DIEP_AXES)
-		ret += "DIEP_AXES ";
-	if (dwStaticParams & DIEP_DIRECTION)
-		ret += "DIEP_DIRECTION ";
-	if (dwStaticParams & DIEP_ENVELOPE)
-		ret += "DIEP_ENVELOPE ";
-	if (dwStaticParams & DIEP_TYPESPECIFICPARAMS)
-		ret += "DIEP_TYPESPECIFICPARAMS ";
-	if (dwStaticParams & DIEP_STARTDELAY)
-		ret += "DIEP_STARTDELAY ";
-	if (dwStaticParams & DIEP_START)
-		ret += "DIEP_START ";
-	if (dwStaticParams & DIEP_NORESTART)
-		ret += "DIEP_NORESTART ";
-	if (dwStaticParams & DIEP_NODOWNLOAD)
-		ret += "DIEP_NODOWNLOAD ";
-	return ret;
+	if (!str.empty())
+		return str;
+
+	return format("Unknown DIEP: {:#x}", dwStaticParams);
 }
 
 static string DIDCToString(DWORD dwFlags) {
-	string ret;
+	string str;
+	for (auto &&pair : DIDCStringPairs) {
+		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
 
-	if (dwFlags & DIDC_ATTACHED)
-		ret += "DIDC_ATTACHED ";
-	if (dwFlags & DIDC_POLLEDDEVICE)
-		ret += "DIDC_POLLEDDEVICE ";
-	if (dwFlags & DIDC_EMULATED)
-		ret += "DIDC_EMULATED ";
-	if (dwFlags & DIDC_POLLEDDATAFORMAT)
-		ret += "DIDC_POLLEDDATAFORMAT ";
-	if (dwFlags & DIDC_FORCEFEEDBACK)
-		ret += "DIDC_FORCEFEEDBACK ";
-	if (dwFlags & DIDC_FFATTACK)
-		ret += "DIDC_FFATTACK ";
-	if (dwFlags & DIDC_FFFADE)
-		ret += "DIDC_FFFADE ";
-	if (dwFlags & DIDC_SATURATION)
-		ret += "DIDC_SATURATION ";
-	if (dwFlags & DIDC_POSNEGCOEFFICIENTS)
-		ret += "DIDC_POSNEGCOEFFICIENTS ";
-	if (dwFlags & DIDC_POSNEGSATURATION)
-		ret += "DIDC_POSNEGSATURATION ";
-	if (dwFlags & DIDC_DEADBAND)
-		ret += "DIDC_DEADBAND ";
-	if (dwFlags & DIDC_STARTDELAY)
-		ret += "DIDC_STARTDELAY ";
-	if (dwFlags & DIDC_ALIAS)
-		ret += "DIDC_ALIAS ";
-	if (dwFlags & DIDC_PHANTOM)
-		ret += "DIDC_PHANTOM ";
-	if (dwFlags & DIDC_HIDDEN)
-		ret += "DIDC_HIDDEN ";
+	if (!str.empty())
+		return str;
 
-	if (ret.empty())
-		return format("Unknown DIDC: {:#x}", dwFlags);
-
-	return ret;
+	return format("Unknown DIDC: {:#x}", dwFlags);
 }
 
 static string DIDEVCAPSToString(const DIDEVCAPS &lpDIDevCaps) {
@@ -209,73 +253,21 @@ static string DIDEVCAPSToString(const DIDEVCAPS &lpDIDevCaps) {
 }
 
 static string DIPROPToString(REFGUID rguidProp) {
-	if (&rguidProp == &DIPROP_BUFFERSIZE)
-		return "DIPROP_BUFFERSIZE";
-	if (&rguidProp == &DIPROP_AXISMODE)
-		return "DIPROP_AXISMODE";
-	if (&rguidProp == &DIPROP_GRANULARITY)
-		return "DIPROP_GRANULARITY";
-	if (&rguidProp == &DIPROP_RANGE)
-		return "DIPROP_RANGE";
-	if (&rguidProp == &DIPROP_DEADZONE)
-		return "DIPROP_DEADZONE";
-	if (&rguidProp == &DIPROP_SATURATION)
-		return "DIPROP_SATURATION";
-	if (&rguidProp == &DIPROP_FFGAIN)
-		return "DIPROP_FFGAIN";
-	if (&rguidProp == &DIPROP_FFLOAD)
-		return "DIPROP_FFLOAD";
-	if (&rguidProp == &DIPROP_AUTOCENTER)
-		return "DIPROP_AUTOCENTER";
-	if (&rguidProp == &DIPROP_CALIBRATIONMODE)
-		return "DIPROP_CALIBRATIONMODE";
-	if (&rguidProp == &DIPROP_CALIBRATION)
-		return "DIPROP_CALIBRATION";
-	if (&rguidProp == &DIPROP_GUIDANDPATH)
-		return "DIPROP_GUIDANDPATH";
-	if (&rguidProp == &DIPROP_INSTANCENAME)
-		return "DIPROP_INSTANCENAME";
-	if (&rguidProp == &DIPROP_PRODUCTNAME)
-		return "DIPROP_PRODUCTNAME";
-	if (&rguidProp == &DIPROP_JOYSTICKID)
-		return "DIPROP_JOYSTICKID";
-	if (&rguidProp == &DIPROP_GETPORTDISPLAYNAME)
-		return "DIPROP_GETPORTDISPLAYNAME";
-	if (&rguidProp == &DIPROP_PHYSICALRANGE)
-		return "DIPROP_PHYSICALRANGE";
-	if (&rguidProp == &DIPROP_LOGICALRANGE)
-		return "DIPROP_LOGICALRANGE";
-	if (&rguidProp == &DIPROP_KEYNAME)
-		return "DIPROP_KEYNAME";
-	if (&rguidProp == &DIPROP_CPOINTS)
-		return "DIPROP_CPOINTS";
-	if (&rguidProp == &DIPROP_APPDATA)
-		return "DIPROP_APPDATA";
-	if (&rguidProp == &DIPROP_SCANCODE)
-		return "DIPROP_SCANCODE";
-	if (&rguidProp == &DIPROP_VIDPID)
-		return "DIPROP_VIDPID";
-	if (&rguidProp == &DIPROP_USERNAME)
-		return "DIPROP_USERNAME";
-	if (&rguidProp == &DIPROP_TYPENAME)
-		return "DIPROP_TYPENAME";
+	for (auto &&pair : DIPROPStringPairs) {
+		if (&rguidProp == &pair.first)
+			return string(pair.second);
+	}
 
 	return format("Unknown DIPROP: {}", static_cast<const void *>(&rguidProp));
 }
 
 static string DIPHHowToString(DWORD dwHow) {
-	switch (dwHow) {
-	case DIPH_DEVICE:
-		return "DIPH_DEVICE";
-	case DIPH_BYOFFSET:
-		return "DIPH_BYOFFSET";
-	case DIPH_BYID:
-		return "DIPH_BYID";
-	case DIPH_BYUSAGE:
-		return "DIPH_BYUSAGE";
-	default:
-		return format("Unknown DIPH: {:#x}", dwHow);
+	for (auto &&pair : DIPHStringPairs) {
+		if (dwHow == pair.first)
+			return string(pair.second);
 	}
+
+	return format("Unknown DIPH: {:#x}", dwHow);
 }
 
 static string DIDATAFORMATToString(LPCDIDATAFORMAT lpdf) {
@@ -360,30 +352,18 @@ static string DIPROPHEADERToString(REFGUID rguidProp,
 }
 
 static string DIGFFSToString(DWORD ffstate) {
-	if (ffstate & DIGFFS_EMPTY)
-		return "DIGFFS_EMPTY";
-	if (ffstate & DIGFFS_STOPPED)
-		return "DIGFFS_STOPPED";
-	if (ffstate & DIGFFS_PAUSED)
-		return "DIGFFS_PAUSED";
-	if (ffstate & DIGFFS_ACTUATORSON)
-		return "DIGFFS_ACTUATORSON";
-	if (ffstate & DIGFFS_ACTUATORSOFF)
-		return "DIGFFS_ACTUATORSOFF";
-	if (ffstate & DIGFFS_POWERON)
-		return "DIGFFS_POWERON";
-	if (ffstate & DIGFFS_POWEROFF)
-		return "DIGFFS_POWEROFF";
-	if (ffstate & DIGFFS_SAFETYSWITCHON)
-		return "DIGFFS_SAFETYSWITCHON";
-	if (ffstate & DIGFFS_SAFETYSWITCHOFF)
-		return "DIGFFS_SAFETYSWITCHOFF";
-	if (ffstate & DIGFFS_USERFFSWITCHON)
-		return "DIGFFS_USERFFSWITCHON";
-	if (ffstate & DIGFFS_USERFFSWITCHOFF)
-		return "DIGFFS_USERFFSWITCHOFF";
-	if (ffstate & DIGFFS_DEVICELOST)
-		return "DIGFFS_DEVICELOST";
+	string str;
+	for (auto &&pair : DIGFFSStringPairs) {
+		if (ffstate & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	if (!str.empty())
+		return str;
+
 	return format("Unknown DIGFFS: {:#x}", ffstate);
 }
 
