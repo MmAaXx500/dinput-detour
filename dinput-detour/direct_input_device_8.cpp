@@ -2,7 +2,6 @@
 #include <string>
 #include <unordered_set>
 
-#include "direct_input_8.h"
 #include "direct_input_device_8.h"
 #include "log.h"
 #include "utils.h"
