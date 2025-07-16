@@ -200,6 +200,133 @@ static string DIDEVCAPSToString(const DIDEVCAPS &lpDIDevCaps) {
 	return str;
 }
 
+static string DIPROPToString(REFGUID rguidProp) {
+	if (&rguidProp == &DIPROP_BUFFERSIZE)
+		return "DIPROP_BUFFERSIZE";
+	if (&rguidProp == &DIPROP_AXISMODE)
+		return "DIPROP_AXISMODE";
+	if (&rguidProp == &DIPROP_GRANULARITY)
+		return "DIPROP_GRANULARITY";
+	if (&rguidProp == &DIPROP_RANGE)
+		return "DIPROP_RANGE";
+	if (&rguidProp == &DIPROP_DEADZONE)
+		return "DIPROP_DEADZONE";
+	if (&rguidProp == &DIPROP_SATURATION)
+		return "DIPROP_SATURATION";
+	if (&rguidProp == &DIPROP_FFGAIN)
+		return "DIPROP_FFGAIN";
+	if (&rguidProp == &DIPROP_FFLOAD)
+		return "DIPROP_FFLOAD";
+	if (&rguidProp == &DIPROP_AUTOCENTER)
+		return "DIPROP_AUTOCENTER";
+	if (&rguidProp == &DIPROP_CALIBRATIONMODE)
+		return "DIPROP_CALIBRATIONMODE";
+	if (&rguidProp == &DIPROP_CALIBRATION)
+		return "DIPROP_CALIBRATION";
+	if (&rguidProp == &DIPROP_GUIDANDPATH)
+		return "DIPROP_GUIDANDPATH";
+	if (&rguidProp == &DIPROP_INSTANCENAME)
+		return "DIPROP_INSTANCENAME";
+	if (&rguidProp == &DIPROP_PRODUCTNAME)
+		return "DIPROP_PRODUCTNAME";
+	if (&rguidProp == &DIPROP_JOYSTICKID)
+		return "DIPROP_JOYSTICKID";
+	if (&rguidProp == &DIPROP_GETPORTDISPLAYNAME)
+		return "DIPROP_GETPORTDISPLAYNAME";
+	if (&rguidProp == &DIPROP_PHYSICALRANGE)
+		return "DIPROP_PHYSICALRANGE";
+	if (&rguidProp == &DIPROP_LOGICALRANGE)
+		return "DIPROP_LOGICALRANGE";
+	if (&rguidProp == &DIPROP_KEYNAME)
+		return "DIPROP_KEYNAME";
+	if (&rguidProp == &DIPROP_CPOINTS)
+		return "DIPROP_CPOINTS";
+	if (&rguidProp == &DIPROP_APPDATA)
+		return "DIPROP_APPDATA";
+	if (&rguidProp == &DIPROP_SCANCODE)
+		return "DIPROP_SCANCODE";
+	if (&rguidProp == &DIPROP_VIDPID)
+		return "DIPROP_VIDPID";
+	if (&rguidProp == &DIPROP_USERNAME)
+		return "DIPROP_USERNAME";
+	if (&rguidProp == &DIPROP_TYPENAME)
+		return "DIPROP_TYPENAME";
+
+	return format("Unknown DIPROP: {}", static_cast<const void *>(&rguidProp));
+}
+
+static string DIPHHowToString(DWORD dwHow) {
+	switch (dwHow) {
+	case DIPH_DEVICE:
+		return "DIPH_DEVICE";
+	case DIPH_BYOFFSET:
+		return "DIPH_BYOFFSET";
+	case DIPH_BYID:
+		return "DIPH_BYID";
+	case DIPH_BYUSAGE:
+		return "DIPH_BYUSAGE";
+	default:
+		return format("Unknown DIPH: {:#x}", dwHow);
+	}
+}
+
+static string DIPROPHEADERToString(REFGUID rguidProp,
+                                   const DIPROPHEADER &diph) {
+	string str =
+	    format("dwSize: {}, dwHeaderSize: {}, dwObj: {}, dwHow: {} ({:#x}), ",
+	           diph.dwSize, diph.dwHeaderSize, diph.dwObj,
+	           DIPHHowToString(diph.dwHow), diph.dwHow);
+
+	if (&rguidProp == &DIPROP_APPDATA && diph.dwSize == sizeof(DIPROPPOINTER)) {
+		LPCDIPROPPOINTER pdipp = reinterpret_cast<LPCDIPROPPOINTER>(&diph);
+		str += format("uData: {}", pdipp->uData);
+	} else if ((&rguidProp == &DIPROP_AUTOCENTER         //
+	            || &rguidProp == &DIPROP_AXISMODE        //
+	            || &rguidProp == &DIPROP_BUFFERSIZE      //
+	            || &rguidProp == &DIPROP_CALIBRATIONMODE //
+	            || &rguidProp == &DIPROP_DEADZONE        //
+	            || &rguidProp == &DIPROP_FFGAIN          //
+	            || &rguidProp == &DIPROP_FFLOAD          //
+	            || &rguidProp == &DIPROP_GRANULARITY     //
+	            || &rguidProp == &DIPROP_JOYSTICKID      //
+	            || &rguidProp == &DIPROP_SATURATION      //
+	            || &rguidProp == &DIPROP_SCANCODE        //
+	            || &rguidProp == &DIPROP_VIDPID)         //
+	           && diph.dwSize == sizeof(DIPROPDWORD)) {
+		LPCDIPROPDWORD pdidw = reinterpret_cast<LPCDIPROPDWORD>(&diph);
+		str += format("dwData: {} ({:#x})", pdidw->dwData, pdidw->dwData);
+	} else if (&rguidProp == &DIPROP_GUIDANDPATH
+	           && diph.dwSize == sizeof(DIPROPGUIDANDPATH)) {
+		LPCDIPROPGUIDANDPATH pdiguid =
+		    reinterpret_cast<LPCDIPROPGUIDANDPATH>(&diph);
+		str += format("guidClass: {}, wszPath: {}",
+		              guid_to_str(pdiguid->guidClass),
+		              wstring_to_string(pdiguid->wszPath));
+	} else if ((&rguidProp == &DIPROP_LOGICALRANGE
+	            || &rguidProp == &DIPROP_PHYSICALRANGE
+	            || &rguidProp == &DIPROP_RANGE)
+	           && diph.dwSize == sizeof(DIPROPRANGE)) {
+		LPCDIPROPRANGE pdirange = reinterpret_cast<LPCDIPROPRANGE>(&diph);
+		str += format("lMin: {}, lMax: {}", pdirange->lMin, pdirange->lMax);
+	} else if ((&rguidProp == &DIPROP_GETPORTDISPLAYNAME //
+	            || &rguidProp == &DIPROP_INSTANCENAME    //
+	            || &rguidProp == &DIPROP_KEYNAME         //
+	            || &rguidProp == &DIPROP_PRODUCTNAME     //
+	            || &rguidProp == &DIPROP_TYPENAME        //
+	            || &rguidProp == &DIPROP_USERNAME)       //
+	           && diph.dwSize == sizeof(DIPROPSTRING)) {
+		LPCDIPROPSTRING pdistr = reinterpret_cast<LPCDIPROPSTRING>(&diph);
+		str += format("wsz: {}", wstring_to_string(pdistr->wsz));
+	} else if (&rguidProp == &DIPROP_CALIBRATION
+	           || &rguidProp == &DIPROP_CPOINTS) {
+		str += format("Unsupported property: {}", DIPROPToString(rguidProp));
+	} else {
+		str += format("Unknown property: {}", guid_to_str(rguidProp));
+	}
+
+	return str;
+}
+
 HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesA(
     LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps) {
 	LOG_PRE("lpDirectInputDevice: {}, lpDIDevCaps: {}\n",
@@ -227,6 +354,45 @@ HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesW(
 
 	if (SUCCEEDED(ret) && lpDIDevCaps)
 		LOG_INFO("{}\n", DIDEVCAPSToString(*lpDIDevCaps));
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+HRESULT WINAPI
+RoutedDirectInputDevice8GetPropertyA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
+                                     REFGUID rguidProp, LPDIPROPHEADER pdiph) {
+	LOG_PRE("lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<const void *>(&rguidProp), static_cast<void *>(pdiph));
+
+	LOG_INFO("rguidProp: {}\n", DIPROPToString(rguidProp));
+
+	HRESULT ret = RealDirectInputDevice8VtblA.GetProperty(lpDirectInputDevice,
+	                                                      rguidProp, pdiph);
+
+	if (SUCCEEDED(ret))
+		LOG_INFO("pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+HRESULT WINAPI
+RoutedDirectInputDevice8GetPropertyW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
+                                     REFGUID rguidProp, LPDIPROPHEADER pdiph) {
+
+	LOG_PRE("lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<const void *>(&rguidProp), static_cast<void *>(pdiph));
+
+	LOG_INFO("rguidProp: {}\n", DIPROPToString(rguidProp));
+
+	HRESULT ret = RealDirectInputDevice8VtblW.GetProperty(lpDirectInputDevice,
+	                                                      rguidProp, pdiph);
+
+	if (SUCCEEDED(ret))
+		LOG_INFO("pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
 
 	LOG_POST("ret: {}\n", ret);
 	return ret;
