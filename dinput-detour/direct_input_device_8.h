@@ -20,6 +20,13 @@ HRESULT WINAPI
 RoutedDirectInputDevice8GetPropertyW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
                                      REFGUID rguidProp, LPDIPROPHEADER pdiph);
 
+HRESULT WINAPI
+RoutedDirectInputDevice8SetPropertyA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
+                                     REFGUID rguidProp, LPCDIPROPHEADER pdiph);
+HRESULT WINAPI
+RoutedDirectInputDevice8SetPropertyW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
+                                     REFGUID rguidProp, LPCDIPROPHEADER pdiph);
+
 HRESULT WINAPI RoutedDirectInputDevice8EnumEffectsA(
     LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
     LPDIENUMEFFECTSCALLBACKA lpCallback, LPVOID pvRef, DWORD dwEffType);

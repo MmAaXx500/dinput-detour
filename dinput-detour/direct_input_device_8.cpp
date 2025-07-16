@@ -398,6 +398,42 @@ RoutedDirectInputDevice8GetPropertyW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
 	return ret;
 }
 
+HRESULT WINAPI
+RoutedDirectInputDevice8SetPropertyA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
+                                     REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
+	LOG_PRE("lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<const void *>(&rguidProp),
+	        static_cast<const void *>(pdiph));
+
+	LOG_INFO("rguidProp: {}\n", DIPROPToString(rguidProp));
+
+	LOG_INFO("pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
+
+	HRESULT ret = RealDirectInputDevice8VtblA.SetProperty(lpDirectInputDevice,
+	                                                      rguidProp, pdiph);
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+HRESULT WINAPI
+RoutedDirectInputDevice8SetPropertyW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
+                                     REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
+	LOG_PRE("lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<const void *>(&rguidProp),
+	        static_cast<const void *>(pdiph));
+
+	LOG_INFO("rguidProp: {}\n", DIPROPToString(rguidProp));
+
+	LOG_INFO("pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
+
+	HRESULT ret = RealDirectInputDevice8VtblW.SetProperty(lpDirectInputDevice,
+	                                                      rguidProp, pdiph);
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
 BOOL WINAPI EnumEffectsCallbackA(LPCDIEFFECTINFOA pdei, LPVOID pvRef) {
 	LOG_PRE("pdei: {}, pvRef: {}\n", reinterpret_cast<const void *>(pdei),
 	        pvRef);
