@@ -34,6 +34,15 @@ struct EnumEffectsCallbackDataW {
 	PVOID realData;
 };
 
+static bool operator==(const DIDATAFORMAT &lhs, const DIDATAFORMAT &rhs) {
+	if (lhs.dwSize != rhs.dwSize || lhs.dwObjSize != rhs.dwObjSize
+	    || lhs.dwFlags != rhs.dwFlags || lhs.dwDataSize != rhs.dwDataSize
+	    || lhs.dwNumObjs != rhs.dwNumObjs)
+		return false;
+
+	return memcmp(lhs.rgodf, rhs.rgodf, lhs.dwNumObjs * lhs.dwObjSize);
+}
+
 static string DIEFTToString(DWORD dwEffType) {
 	string ret;
 
@@ -270,6 +279,30 @@ static string DIPHHowToString(DWORD dwHow) {
 	}
 }
 
+static string DIDATAFORMATToString(LPCDIDATAFORMAT lpdf) {
+	string str;
+	if (lpdf && *lpdf == c_dfDIKeyboard)
+		str += format("c_dfDIKeyboard");
+	else if (lpdf && *lpdf == c_dfDIMouse)
+		str += format("c_dfDIMouse");
+	else if (lpdf && *lpdf == c_dfDIMouse2)
+		str += format("c_dfDIMouse2");
+	else if (lpdf && *lpdf == c_dfDIJoystick)
+		str += format("c_dfDIJoystick");
+	else if (lpdf && *lpdf == c_dfDIJoystick2)
+		str += format("c_dfDIJoystick2");
+	else if (lpdf)
+		str += format(
+		    "Custom: dwSize: {}, dwObjsSize: {}, dwFlags: {:#x}, dwDataSize: "
+		    "{}, dwNumObjs: {}",
+		    lpdf->dwSize, lpdf->dwObjSize, lpdf->dwFlags, lpdf->dwDataSize,
+		    lpdf->dwNumObjs);
+	else
+		str += format("{}", static_cast<const void *>(lpdf));
+
+	return str;
+}
+
 static string DIPROPHEADERToString(REFGUID rguidProp,
                                    const DIPROPHEADER &diph) {
 	string str =
@@ -430,6 +463,36 @@ RoutedDirectInputDevice8SetPropertyW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
 
 	HRESULT ret = RealDirectInputDevice8VtblW.SetProperty(lpDirectInputDevice,
 	                                                      rguidProp, pdiph);
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8SetDataFormatA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPCDIDATAFORMAT lpdf) {
+	LOG_PRE("lpDirectInputDevice: {}, lpdf: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<const void *>(lpdf));
+
+	LOG_INFO("lpdf: {}\n", DIDATAFORMATToString(lpdf));
+
+	HRESULT ret =
+	    RealDirectInputDevice8VtblA.SetDataFormat(lpDirectInputDevice, lpdf);
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8SetDataFormatW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPCDIDATAFORMAT lpdf) {
+	LOG_PRE("lpDirectInputDevice: {}, lpdf: {}\n",
+	        static_cast<void *>(lpDirectInputDevice),
+	        static_cast<const void *>(lpdf));
+
+	LOG_INFO("lpdf: {}\n", DIDATAFORMATToString(lpdf));
+
+	HRESULT ret =
+	    RealDirectInputDevice8VtblW.SetDataFormat(lpDirectInputDevice, lpdf);
+
 	LOG_POST("ret: {}\n", ret);
 	return ret;
 }
