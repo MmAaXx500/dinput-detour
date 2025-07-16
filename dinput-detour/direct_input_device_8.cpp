@@ -586,7 +586,7 @@ BOOL WINAPI EnumEffectsCallbackA(LPCDIEFFECTINFOA pdei, LPVOID pvRef) {
 
 	BOOL ret = data->realCallback(pdei, data->realData);
 
-	LOG_POST("ret: {}", ret);
+	LOG_POST("ret: {}\n", ret);
 
 	return ret;
 }
@@ -625,7 +625,7 @@ BOOL WINAPI EnumEffectsCallbackW(LPCDIEFFECTINFOW pdei, LPVOID pvRef) {
 
 	BOOL ret = data->realCallback(pdei, data->realData);
 
-	LOG_POST("ret: {}", ret);
+	LOG_POST("ret: {}\n", ret);
 
 	return ret;
 }
@@ -815,7 +815,7 @@ void CollectDeviceInfoA(const LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
 	if (seenDevicesA.contains(rguid))
 		return;
 
-	LOG_PRE("Collecting device info for: {}", guid_to_str(rguid));
+	LOG_PRE("Collecting device info for: {}\n", guid_to_str(rguid));
 
 	seenDevicesA.insert(rguid);
 
@@ -831,7 +831,7 @@ void CollectDeviceInfoA(const LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
 	RealDirectInputDevice8VtblA.EnumEffects(
 	    lpDirectInputDevice, EnumEffectsCallbackA, nullptr, DIEFT_ALL);
 
-	LOG_POST("Collection ended for: {}", guid_to_str(rguid));
+	LOG_POST("Collection ended for: {}\n", guid_to_str(rguid));
 }
 
 void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
@@ -839,7 +839,7 @@ void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
 	if (seenDevicesW.contains(rguid))
 		return;
 
-	LOG_PRE("Collecting device info for: {}", guid_to_str(rguid));
+	LOG_PRE("Collecting device info for: {}\n", guid_to_str(rguid));
 
 	seenDevicesW.insert(rguid);
 
@@ -855,5 +855,5 @@ void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
 	RealDirectInputDevice8VtblW.EnumEffects(
 	    lpDirectInputDevice, EnumEffectsCallbackW, nullptr, DIEFT_ALL);
 
-	LOG_POST("Collection ended for: {}", guid_to_str(rguid));
+	LOG_POST("Collection ended for: {}\n", guid_to_str(rguid));
 }
