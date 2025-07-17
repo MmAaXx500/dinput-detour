@@ -4,9 +4,6 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-extern IDirectInputDevice8AVtbl RealDirectInputDevice8VtblA;
-extern IDirectInputDevice8WVtbl RealDirectInputDevice8VtblW;
-
 HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesA(
     LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps);
 
@@ -59,20 +56,38 @@ HRESULT WINAPI RoutedDirectInputDevice8GetForceFeedbackStateA(
 HRESULT WINAPI RoutedDirectInputDevice8GetForceFeedbackStateW(
     LPDIRECTINPUTDEVICE8W lpDirectInputDevice, LPDWORD pdwOut);
 
-/*
- * Collect device information for a DirectInput device.
- * This must be called after IDirectInputDevice8 is hooked
+/**
+ * Attach to DirectInputDevice8 (A) functions
  *
  * @param lpDirectInputDevice Pointer to the DirectInput device.
+ * @param rguid GUID of the device
+ * @return Result of DetourTransaction
  */
-void CollectDeviceInfoA(const LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
-                        const GUID rguid);
+LONG DirectInputDevice8DetourAttachA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
+                                     REFGUID rguid);
 
-/*
- * Collect device information for a DirectInput device.
- * This must be called after IDirectInputDevice8 is hooked
+/**
+ * Attach to DirectInputDevice8 (W) functions
  *
  * @param lpDirectInputDevice Pointer to the DirectInput device.
+ * @param rguid GUID of the device
+ * @return Result of DetourTransaction
  */
-void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
-                        const GUID rguid);
+LONG DirectInputDevice8DetourAttachW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
+                                     REFGUID rguid);
+
+/**
+ * Detach from DirectInputDevice8 (A) functions
+ *
+ * @param lpDirectInputDevice Pointer to the DirectInput device.
+ * @return Result of DetourTransaction
+ */
+LONG DirectInputDevice8DetourDetachA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice);
+
+/**
+ * Detach from DirectInputDevice8 (W) functions
+ *
+ * @param lpDirectInputDevice Pointer to the DirectInput device.
+ * @return Result of DetourTransaction
+ */
+LONG DirectInputDevice8DetourDetachW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice);

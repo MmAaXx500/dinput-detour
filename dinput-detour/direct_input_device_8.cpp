@@ -790,8 +790,14 @@ HRESULT WINAPI RoutedDirectInputDevice8GetForceFeedbackStateW(
 	return ret;
 }
 
-void CollectDeviceInfoA(const LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
-                        const GUID rguid) {
+/*
+ * Collect device information for a DirectInput device.
+ * This must be called after IDirectInputDevice8 is hooked
+ *
+ * @param lpDirectInputDevice Pointer to the DirectInput device.
+ */
+static void CollectDeviceInfoA(const LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
+                               const GUID rguid) {
 	if (seenDevicesA.contains(rguid))
 		return;
 
@@ -814,8 +820,14 @@ void CollectDeviceInfoA(const LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
 	LOG_POST("Collection ended for: {}\n", guid_to_str(rguid));
 }
 
-void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
-                        const GUID rguid) {
+/*
+ * Collect device information for a DirectInput device.
+ * This must be called after IDirectInputDevice8 is hooked
+ *
+ * @param lpDirectInputDevice Pointer to the DirectInput device.
+ */
+static void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
+                               const GUID rguid) {
 	if (seenDevicesW.contains(rguid))
 		return;
 
@@ -836,4 +848,132 @@ void CollectDeviceInfoW(const LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
 	    lpDirectInputDevice, EnumEffectsCallbackW, nullptr, DIEFT_ALL);
 
 	LOG_POST("Collection ended for: {}\n", guid_to_str(rguid));
+}
+
+LONG DirectInputDevice8DetourAttachA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
+                                     REFGUID rguid) {
+	LONG ret = NO_ERROR;
+
+	if (RealDirectInputDevice8VtblA.AddRef == nullptr && lpDirectInputDevice) {
+		RealDirectInputDevice8VtblA = *lpDirectInputDevice->lpVtbl;
+
+		ret = DetourTransaction([]() {
+			DetourAttach(&RealDirectInputDevice8VtblA.GetCapabilities,
+			             RoutedDirectInputDevice8GetCapabilitiesA);
+			DetourAttach(&RealDirectInputDevice8VtblA.GetProperty,
+			             RoutedDirectInputDevice8GetPropertyA);
+			DetourAttach(&RealDirectInputDevice8VtblA.SetProperty,
+			             RoutedDirectInputDevice8SetPropertyA);
+			DetourAttach(&RealDirectInputDevice8VtblA.SetDataFormat,
+			             RoutedDirectInputDevice8SetDataFormatA);
+			DetourAttach(&RealDirectInputDevice8VtblA.SetEventNotification,
+			             RoutedDirectInputDevice8SetEventNotificationA);
+			DetourAttach(&RealDirectInputDevice8VtblA.EnumEffects,
+			             RoutedDirectInputDevice8EnumEffectsA);
+			DetourAttach(&RealDirectInputDevice8VtblA.GetDeviceInfo,
+			             RoutedDirectInputDevice8GetDeviceInfoA);
+			DetourAttach(&RealDirectInputDevice8VtblA.GetForceFeedbackState,
+			             RoutedDirectInputDevice8GetForceFeedbackStateA);
+		});
+	}
+
+	if (ret == NO_ERROR)
+		CollectDeviceInfoA(lpDirectInputDevice, rguid);
+
+	return ret;
+}
+
+LONG DirectInputDevice8DetourAttachW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
+                                     REFGUID rguid) {
+	LONG ret = NO_ERROR;
+
+	if (RealDirectInputDevice8VtblW.AddRef == nullptr && lpDirectInputDevice) {
+		RealDirectInputDevice8VtblW = *lpDirectInputDevice->lpVtbl;
+
+		ret = DetourTransaction([]() {
+			DetourAttach(&RealDirectInputDevice8VtblW.GetCapabilities,
+			             RoutedDirectInputDevice8GetCapabilitiesW);
+			DetourAttach(&RealDirectInputDevice8VtblW.GetProperty,
+			             RoutedDirectInputDevice8GetPropertyW);
+			DetourAttach(&RealDirectInputDevice8VtblW.SetProperty,
+			             RoutedDirectInputDevice8SetPropertyW);
+			DetourAttach(&RealDirectInputDevice8VtblW.SetDataFormat,
+			             RoutedDirectInputDevice8SetDataFormatW);
+			DetourAttach(&RealDirectInputDevice8VtblW.SetEventNotification,
+			             RoutedDirectInputDevice8SetEventNotificationW);
+			DetourAttach(&RealDirectInputDevice8VtblW.EnumEffects,
+			             RoutedDirectInputDevice8EnumEffectsW);
+			DetourAttach(&RealDirectInputDevice8VtblW.GetDeviceInfo,
+			             RoutedDirectInputDevice8GetDeviceInfoW);
+			DetourAttach(&RealDirectInputDevice8VtblW.GetForceFeedbackState,
+			             RoutedDirectInputDevice8GetForceFeedbackStateW);
+		});
+	}
+
+	if (ret == NO_ERROR)
+		CollectDeviceInfoW(lpDirectInputDevice, rguid);
+
+	return ret;
+}
+
+LONG DirectInputDevice8DetourDetachA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice) {
+	LONG ret = ERROR_INVALID_OPERATION;
+
+	if (RealDirectInputDevice8VtblA.AddRef != nullptr && lpDirectInputDevice) {
+		ret = DetourTransaction([]() {
+			DetourDetach(&RealDirectInputDevice8VtblA.GetCapabilities,
+			             RoutedDirectInputDevice8GetCapabilitiesA);
+			DetourDetach(&RealDirectInputDevice8VtblA.GetProperty,
+			             RoutedDirectInputDevice8GetPropertyA);
+			DetourDetach(&RealDirectInputDevice8VtblA.SetProperty,
+			             RoutedDirectInputDevice8SetPropertyA);
+			DetourDetach(&RealDirectInputDevice8VtblA.SetDataFormat,
+			             RoutedDirectInputDevice8SetDataFormatA);
+			DetourDetach(&RealDirectInputDevice8VtblA.SetEventNotification,
+			             RoutedDirectInputDevice8SetEventNotificationA);
+			DetourDetach(&RealDirectInputDevice8VtblA.EnumEffects,
+			             RoutedDirectInputDevice8EnumEffectsA);
+			DetourDetach(&RealDirectInputDevice8VtblA.GetDeviceInfo,
+			             RoutedDirectInputDevice8GetDeviceInfoA);
+			DetourDetach(&RealDirectInputDevice8VtblA.GetForceFeedbackState,
+			             RoutedDirectInputDevice8GetForceFeedbackStateA);
+		});
+
+		memset(&RealDirectInputDevice8VtblA, 0,
+		       sizeof(RealDirectInputDevice8VtblA));
+	}
+
+	return ret;
+}
+
+LONG DirectInputDevice8DetourDetachW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice) {
+	LONG ret = ERROR_INVALID_OPERATION;
+
+	if (RealDirectInputDevice8VtblW.AddRef != nullptr && lpDirectInputDevice) {
+		ret = DetourTransaction([]() {
+			DetourDetach(&RealDirectInputDevice8VtblW.GetCapabilities,
+			             RoutedDirectInputDevice8GetCapabilitiesW);
+			DetourDetach(&RealDirectInputDevice8VtblW.GetProperty,
+			             RoutedDirectInputDevice8GetPropertyW);
+			DetourDetach(&RealDirectInputDevice8VtblW.SetProperty,
+			             RoutedDirectInputDevice8SetPropertyW);
+			DetourDetach(&RealDirectInputDevice8VtblW.SetDataFormat,
+			             RoutedDirectInputDevice8SetDataFormatW);
+			DetourDetach(&RealDirectInputDevice8VtblW.SetEventNotification,
+			             RoutedDirectInputDevice8SetEventNotificationW);
+			DetourDetach(&RealDirectInputDevice8VtblW.EnumEffects,
+			             RoutedDirectInputDevice8EnumEffectsW);
+			DetourDetach(&RealDirectInputDevice8VtblW.GetDeviceInfo,
+			             RoutedDirectInputDevice8GetDeviceInfoW);
+			DetourDetach(&RealDirectInputDevice8VtblW.GetForceFeedbackState,
+			             RoutedDirectInputDevice8GetForceFeedbackStateW);
+		});
+
+		memset(&RealDirectInputDevice8VtblW, 0,
+		       sizeof(RealDirectInputDevice8VtblW));
+	}
+
+	return ret;
 }
