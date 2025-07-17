@@ -491,22 +491,23 @@ static string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 
 		if (LOBYTE(dwEffType) == DIEFT_CONSTANTFORCE) {
 			LPCDICONSTANTFORCE effconst =
-			    (LPCDICONSTANTFORCE)lpeff->lpvTypeSpecificParams;
+			    static_cast<LPCDICONSTANTFORCE>(lpeff->lpvTypeSpecificParams);
 
 			str += format("constantForce: {{{}}}",
 			              DICONSTANTFORCEToString(*effconst));
 		} else if (LOBYTE(dwEffType) == DIEFT_RAMPFORCE) {
 			LPCDIRAMPFORCE efframp =
-			    (LPCDIRAMPFORCE)lpeff->lpvTypeSpecificParams;
+			    static_cast<LPCDIRAMPFORCE>(lpeff->lpvTypeSpecificParams);
 
 			str += format("rampForce: {{{}}}", DIRAMPFORCEToString(*efframp));
 		} else if (LOBYTE(dwEffType) == DIEFT_PERIODIC) {
-			LPCDIPERIODIC effper = (LPCDIPERIODIC)lpeff->lpvTypeSpecificParams;
+			LPCDIPERIODIC effper =
+			    static_cast<LPCDIPERIODIC>(lpeff->lpvTypeSpecificParams);
 
 			str += format("periodic: {{{}}}", DIPERIODICToString(*effper));
 		} else if (LOBYTE(dwEffType) == DIEFT_CONDITION) {
 			LPCDICONDITION lpEffCond =
-			    (LPCDICONDITION)lpeff->lpvTypeSpecificParams;
+			    static_cast<LPCDICONDITION>(lpeff->lpvTypeSpecificParams);
 
 			str += "{";
 			for (DWORD i = 0;
@@ -519,7 +520,7 @@ static string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 			str += "}";
 		} else if (LOBYTE(dwEffType) == DIEFT_CUSTOMFORCE) {
 			LPCDICUSTOMFORCE customForce =
-			    (LPCDICUSTOMFORCE)lpeff->lpvTypeSpecificParams;
+			    static_cast<LPCDICUSTOMFORCE>(lpeff->lpvTypeSpecificParams);
 
 			str += format("customForce: {{{}}}",
 			              DICUSTOMFORCEToString(*customForce));
