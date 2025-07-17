@@ -144,6 +144,18 @@ constexpr static array<pair<DWORD, string_view>, 12> DIGFFSStringPairs = {{
     {DIGFFS_DEVICELOST, "DIGFFS_DEVICELOST"},
 }};
 
+constexpr static array<pair<DWORD, string_view>, 3> DIEFFTriggerStringPairs = {{
+    {DIEFF_OBJECTIDS, "DIEFF_OBJECTIDS"},
+    {DIEFF_OBJECTOFFSETS, "DIEFF_OBJECTOFFSETS"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 3> DIEFFDirectionStringPairs =
+    {{
+        {DIEFF_CARTESIAN, "DIEFF_CARTESIAN"},
+        {DIEFF_POLAR, "DIEFF_POLAR"},
+        {DIEFF_SPHERICAL, "DIEFF_SPHERICAL"},
+    }};
+
 static bool operator==(const DIDATAFORMAT &lhs, const DIDATAFORMAT &rhs) {
 	if (lhs.dwSize != rhs.dwSize || lhs.dwObjSize != rhs.dwObjSize
 	    || lhs.dwFlags != rhs.dwFlags || lhs.dwDataSize != rhs.dwDataSize
@@ -365,6 +377,210 @@ static string DIGFFSToString(DWORD ffstate) {
 		return str;
 
 	return format("Unknown DIGFFS: {:#x}", ffstate);
+}
+
+static string DIEFFToString(DWORD dwFlags) {
+	string str;
+	for (auto &&pair : DIEFFTriggerStringPairs) {
+		if (dwFlags & pair.first) {
+			str += pair.second;
+			break;
+		}
+	}
+
+	str += " | ";
+
+	for (auto &&pair : DIEFFDirectionStringPairs) {
+		if (dwFlags & pair.first) {
+			str += pair.second;
+			break;
+		}
+	}
+
+	return str;
+}
+
+static string DurationToString(DWORD duration) {
+	if (duration == INFINITE)
+		return "INFINITE";
+
+	return format("{}", duration);
+}
+
+static string TriggerToString(DWORD trigger) {
+	if (trigger == DIEB_NOTRIGGER)
+		return "DIEB_NOTRIGGER";
+
+	return format("{}", trigger);
+}
+
+static string DICONSTANTFORCEToString(const DICONSTANTFORCE &eff) {
+	return format("lMagnitude: {}", eff.lMagnitude);
+}
+
+static string DIRAMPFORCEToString(const DIRAMPFORCE &eff) {
+	return format("lStart: {}, lEnd: {}", eff.lStart, eff.lEnd);
+}
+
+static string DIPERIODICToString(const DIPERIODIC &eff) {
+	return format("dwMagnitude: {}, lOffset: {}, dwPhase: {}, dwPeriod: {}",
+	              eff.dwMagnitude, eff.lOffset, eff.dwPhase, eff.dwPeriod);
+}
+
+static string DICONDITIONToString(const DICONDITION &eff) {
+	return format("lOffset: {}, lPositiveCoefficient: {}, "
+	              "lNegativeCoefficient: {}, dwPositiveSaturation: {}, "
+	              "dwNegativeSaturation: {}, lDeadBand: {}",
+	              eff.lOffset, eff.lPositiveCoefficient,
+	              eff.lNegativeCoefficient, eff.dwPositiveSaturation,
+	              eff.dwNegativeSaturation, eff.lDeadBand);
+}
+
+static string DICUSTOMFORCEToString(const DICUSTOMFORCE &eff) {
+	return format(
+	    "cChannels: {}, dwSamplePeriod: {}, cSamples: {}, rglForceData: {}",
+	    eff.cChannels, eff.dwSamplePeriod, eff.cSamples,
+	    static_cast<void *>(eff.rglForceData));
+}
+
+static string DIENVELOPEToString(const DIENVELOPE &eff) {
+	return format("lpEnvelope: dwSize: {}, dwAttackLevel: {}, "
+	              "dwFadeLevel: {}, dwAttackTime: {}, "
+	              "dwFadeTime: {}",
+	              eff.dwSize, eff.dwAttackLevel, eff.dwFadeLevel,
+	              eff.dwAttackTime, eff.dwFadeTime);
+}
+
+static string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
+	string str =
+	    format("dwSize: {}, dwFlags: {}, dwDuration: {}, "
+	           "dwSamplePeriod: {}, dwGain: {}, dwTriggerButton: {}, "
+	           "dwTriggerRepeatInterval: {}, cAxes: {}",
+	           lpeff->dwSize, DIEFFToString(lpeff->dwFlags),
+	           DurationToString(lpeff->dwDuration), lpeff->dwSamplePeriod,
+	           lpeff->dwGain, TriggerToString(lpeff->dwTriggerButton),
+	           lpeff->dwTriggerRepeatInterval, lpeff->cAxes);
+
+	if (lpeff->rgdwAxes) {
+		for (DWORD i = 0; i < lpeff->cAxes; ++i) {
+			str += format(", rgdwAxes[{}]: {}", i, lpeff->rgdwAxes[i]);
+		}
+	} else {
+		str += ", rgdwAxes: null";
+	}
+
+	if (lpeff->rglDirection) {
+		for (DWORD i = 0; i < lpeff->cAxes; ++i) {
+			str += format(", rglDirection[{}]: {}", i, lpeff->rglDirection[i]);
+		}
+	} else {
+		str += ", rglDirection: null";
+	}
+
+	if (lpeff->lpEnvelope) {
+		str += format(", lpEnvelope: {{{}}}",
+		              DIENVELOPEToString(*lpeff->lpEnvelope));
+	} else {
+		str += ", lpEnvelope: null";
+	}
+
+	str += format(", cbTypeSpecificParams: {}", lpeff->cbTypeSpecificParams);
+
+	if (lpeff->lpvTypeSpecificParams) {
+		str += ", lpvTypeSpecificParams: ";
+
+		if (LOBYTE(dwEffType) == DIEFT_CONSTANTFORCE) {
+			LPCDICONSTANTFORCE effconst =
+			    (LPCDICONSTANTFORCE)lpeff->lpvTypeSpecificParams;
+
+			str += format("constantForce: {{{}}}",
+			              DICONSTANTFORCEToString(*effconst));
+		} else if (LOBYTE(dwEffType) == DIEFT_RAMPFORCE) {
+			LPCDIRAMPFORCE efframp =
+			    (LPCDIRAMPFORCE)lpeff->lpvTypeSpecificParams;
+
+			str += format("rampForce: {{{}}}", DIRAMPFORCEToString(*efframp));
+		} else if (LOBYTE(dwEffType) == DIEFT_PERIODIC) {
+			LPCDIPERIODIC effper = (LPCDIPERIODIC)lpeff->lpvTypeSpecificParams;
+
+			str += format("periodic: {{{}}}", DIPERIODICToString(*effper));
+		} else if (LOBYTE(dwEffType) == DIEFT_CONDITION) {
+			LPCDICONDITION lpEffCond =
+			    (LPCDICONDITION)lpeff->lpvTypeSpecificParams;
+
+			str += "{";
+			for (DWORD i = 0;
+			     i < lpeff->cbTypeSpecificParams / sizeof(DICONDITION); i++) {
+				if (i > 0)
+					str += ", ";
+				str += format("condition[{}]: {{{}}}", i,
+				              DICONDITIONToString(lpEffCond[i]));
+			}
+			str += "}";
+		} else if (LOBYTE(dwEffType) == DIEFT_CUSTOMFORCE) {
+			LPCDICUSTOMFORCE customForce =
+			    (LPCDICUSTOMFORCE)lpeff->lpvTypeSpecificParams;
+
+			str += format("customForce: {{{}}}",
+			              DICUSTOMFORCEToString(*customForce));
+		} else {
+			str += format("Unknown effect type: {:#x}", dwEffType);
+		}
+	}
+
+	str += format(", dwStartDelay: {}\n", lpeff->dwStartDelay);
+
+	return str;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8CreateEffectA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, REFGUID rguid, LPCDIEFFECT lpeff,
+    LPDIRECTINPUTEFFECT *ppdeff, LPUNKNOWN punkOuter) {
+	LOG_PRE("lpDirectInputDevice: {}, rguid: {}, lpeff: {}, ppdeff: {}, "
+	        "punkOuter: {}\n",
+	        static_cast<void *>(lpDirectInputDevice), guid_to_str(rguid),
+	        static_cast<const void *>(lpeff), static_cast<void *>(ppdeff),
+	        static_cast<void *>(punkOuter));
+
+	DIEFFECTINFOA effinfo = {};
+	effinfo.dwSize = sizeof(DIEFFECTINFOA);
+	HRESULT hr = RealDirectInputDevice8VtblA.GetEffectInfo(lpDirectInputDevice,
+	                                                       &effinfo, rguid);
+	if (FAILED(hr))
+		effinfo.dwEffType = 0;
+
+	LOG_INFO("lpeff: {}", DIEFFECTToString(lpeff, effinfo.dwEffType));
+
+	HRESULT ret = RealDirectInputDevice8VtblA.CreateEffect(
+	    lpDirectInputDevice, rguid, lpeff, ppdeff, punkOuter);
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+HRESULT WINAPI RoutedDirectInputDevice8CreateEffectW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, REFGUID rguid, LPCDIEFFECT lpeff,
+    LPDIRECTINPUTEFFECT *ppdeff, LPUNKNOWN punkOuter) {
+	LOG_PRE("lpDirectInputDevice: {}, rguid: {}, lpeff: {}, ppdeff: {}, "
+	        "punkOuter: {}\n",
+	        static_cast<void *>(lpDirectInputDevice), guid_to_str(rguid),
+	        static_cast<const void *>(lpeff), static_cast<void *>(ppdeff),
+	        static_cast<void *>(punkOuter));
+
+	DIEFFECTINFOW effinfo = {};
+	effinfo.dwSize = sizeof(DIEFFECTINFOW);
+	HRESULT hr = RealDirectInputDevice8VtblW.GetEffectInfo(lpDirectInputDevice,
+	                                                       &effinfo, rguid);
+	if (FAILED(hr))
+		effinfo.dwEffType = 0;
+
+	LOG_INFO("lpeff: {}", DIEFFECTToString(lpeff, effinfo.dwEffType));
+
+	HRESULT ret = RealDirectInputDevice8VtblW.CreateEffect(
+	    lpDirectInputDevice, rguid, lpeff, ppdeff, punkOuter);
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
 }
 
 HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesA(
@@ -858,6 +1074,8 @@ LONG DirectInputDevice8DetourAttachA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
 		RealDirectInputDevice8VtblA = *lpDirectInputDevice->lpVtbl;
 
 		ret = DetourTransaction([]() {
+			DetourAttach(&RealDirectInputDevice8VtblA.CreateEffect,
+			             RoutedDirectInputDevice8CreateEffectA);
 			DetourAttach(&RealDirectInputDevice8VtblA.GetCapabilities,
 			             RoutedDirectInputDevice8GetCapabilitiesA);
 			DetourAttach(&RealDirectInputDevice8VtblA.GetProperty,
@@ -891,6 +1109,8 @@ LONG DirectInputDevice8DetourAttachW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
 		RealDirectInputDevice8VtblW = *lpDirectInputDevice->lpVtbl;
 
 		ret = DetourTransaction([]() {
+			DetourAttach(&RealDirectInputDevice8VtblW.CreateEffect,
+			             RoutedDirectInputDevice8CreateEffectW);
 			DetourAttach(&RealDirectInputDevice8VtblW.GetCapabilities,
 			             RoutedDirectInputDevice8GetCapabilitiesW);
 			DetourAttach(&RealDirectInputDevice8VtblW.GetProperty,
@@ -922,6 +1142,8 @@ LONG DirectInputDevice8DetourDetachA(
 
 	if (RealDirectInputDevice8VtblA.AddRef != nullptr && lpDirectInputDevice) {
 		ret = DetourTransaction([]() {
+			DetourDetach(&RealDirectInputDevice8VtblA.CreateEffect,
+			             RoutedDirectInputDevice8CreateEffectA);
 			DetourDetach(&RealDirectInputDevice8VtblA.GetCapabilities,
 			             RoutedDirectInputDevice8GetCapabilitiesA);
 			DetourDetach(&RealDirectInputDevice8VtblA.GetProperty,
@@ -953,6 +1175,8 @@ LONG DirectInputDevice8DetourDetachW(
 
 	if (RealDirectInputDevice8VtblW.AddRef != nullptr && lpDirectInputDevice) {
 		ret = DetourTransaction([]() {
+			DetourDetach(&RealDirectInputDevice8VtblW.CreateEffect,
+			             RoutedDirectInputDevice8CreateEffectW);
 			DetourDetach(&RealDirectInputDevice8VtblW.GetCapabilities,
 			             RoutedDirectInputDevice8GetCapabilitiesW);
 			DetourDetach(&RealDirectInputDevice8VtblW.GetProperty,

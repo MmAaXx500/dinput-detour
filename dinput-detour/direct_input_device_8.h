@@ -4,6 +4,14 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
+HRESULT WINAPI RoutedDirectInputDevice8CreateEffectA(
+    LPDIRECTINPUTDEVICE8A lpDirectInputDevice, REFGUID rguid, LPCDIEFFECT lpeff,
+    LPDIRECTINPUTEFFECT *ppdeff, LPUNKNOWN punkOuter);
+
+HRESULT WINAPI RoutedDirectInputDevice8CreateEffectW(
+    LPDIRECTINPUTDEVICE8W lpDirectInputDevice, REFGUID rguid, LPCDIEFFECT lpeff,
+    LPDIRECTINPUTEFFECT *ppdeff, LPUNKNOWN punkOuter);
+
 HRESULT WINAPI RoutedDirectInputDevice8GetCapabilitiesA(
     LPDIRECTINPUTDEVICE8A lpDirectInputDevice, LPDIDEVCAPS lpDIDevCaps);
 
