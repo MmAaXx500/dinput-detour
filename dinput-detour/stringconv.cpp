@@ -499,7 +499,7 @@ string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 		}
 	}
 
-	str += format(", dwStartDelay: {}\n", lpeff->dwStartDelay);
+	str += format(", dwStartDelay: {}", lpeff->dwStartDelay);
 
 	return str;
 }
