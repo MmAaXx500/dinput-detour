@@ -383,8 +383,7 @@ LONG DirectInputDevice8DetourDetach(
 			    DirectInputDevice8GetForceFeedbackState<IDInput>);
 		});
 
-		memset(&RealDirectInputDevice8Vtbl<IDInput>, 0,
-		       sizeof(RealDirectInputDevice8Vtbl<IDInput>));
+		RealDirectInputDevice8Vtbl<IDInput> = {};
 	}
 
 	return ret;
