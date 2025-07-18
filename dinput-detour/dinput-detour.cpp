@@ -1,6 +1,4 @@
-﻿#define CINTERFACE
-
-#include <filesystem>
+﻿#include <filesystem>
 #include <format>
 
 #include <windows.h>

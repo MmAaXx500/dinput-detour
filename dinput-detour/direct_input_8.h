@@ -1,7 +1,5 @@
 #pragma once
 
-#define CINTERFACE
-#define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
 template <typename IDInput> struct DITraits;

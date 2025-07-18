@@ -25,6 +25,8 @@ enable_warns(${DETOUR_LIBNAME})
 
 copy_binary_to_bin(${DETOUR_LIBNAME})
 
+target_compile_definitions(${DETOUR_LIBNAME} PRIVATE CINTERFACE DIRECTINPUT_VERSION=0x0800)
+
 # Keep libs lowercase, so mingw finds it
 target_link_libraries(${DETOUR_LIBNAME} PRIVATE detours dinput8.lib dxguid.lib user32.lib)
 

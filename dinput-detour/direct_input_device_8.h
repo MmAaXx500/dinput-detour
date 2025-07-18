@@ -1,7 +1,5 @@
 #pragma once
 
-#define CINTERFACE
-#define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
 #include "direct_input_8.h"
