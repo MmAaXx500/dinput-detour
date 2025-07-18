@@ -3,6 +3,7 @@ add_library(${DETOUR_LIBNAME} SHARED
     "dinput-detour.cpp"
     "utils.cpp"
     "log.cpp"
+    "stringconv.cpp"
     "direct_input_8.cpp"
     "direct_input_device_8.cpp")
 
