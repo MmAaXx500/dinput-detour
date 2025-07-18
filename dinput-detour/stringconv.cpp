@@ -2,7 +2,6 @@
 #include <format>
 
 #include "log.h"
-
 #include "stringconv.h"
 
 using namespace std;

@@ -1,15 +1,9 @@
-﻿// dinput-detour.cpp : Defines the entry point for the application.
-//
-
-// #include "dinput-detour.h"
-
-#define CINTERFACE
+﻿#define CINTERFACE
 
 #include <filesystem>
 #include <format>
 
 #include <windows.h>
-#include <winerror.h>
 
 #include <detours.h>
 
