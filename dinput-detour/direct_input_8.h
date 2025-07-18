@@ -4,12 +4,42 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-extern IDirectInput8AVtbl RealDirectInput8VtblA;
-extern IDirectInput8WVtbl RealDirectInput8VtblW;
+template <typename IDInput> struct DITraits;
 
-HRESULT WINAPI RoutedDirectInput8CreateDeviceA(
-    LPDIRECTINPUT8A lpDI, REFGUID rguid,
-    LPDIRECTINPUTDEVICE8A *lplpDirectInputDevice, LPUNKNOWN pUnkOuter);
-HRESULT WINAPI RoutedDirectInput8CreateDeviceW(
-    LPDIRECTINPUT8W lpDI, REFGUID rguid,
-    LPDIRECTINPUTDEVICE8W *lplpDirectInputDevice, LPUNKNOWN pUnkOuter);
+template <> struct DITraits<IDirectInput8A> {
+	using DInput = IDirectInput8A;
+	using DInputVtbl = IDirectInput8AVtbl;
+	using DIDevice = IDirectInputDevice8A;
+	using DIDeviceInstance = DIDEVICEINSTANCEA;
+	using DIDeviceVtbl = IDirectInputDevice8AVtbl;
+	using DIEffectInfo = DIEFFECTINFOA;
+	using DIEnumEffectsCallback = LPDIENUMEFFECTSCALLBACKA;
+};
+
+template <> struct DITraits<IDirectInput8W> {
+	using DInput = IDirectInput8W;
+	using DInputVtbl = IDirectInput8WVtbl;
+	using DIDevice = IDirectInputDevice8W;
+	using DIDeviceInstance = DIDEVICEINSTANCEW;
+	using DIDeviceVtbl = IDirectInputDevice8WVtbl;
+	using DIEffectInfo = DIEFFECTINFOW;
+	using DIEnumEffectsCallback = LPDIENUMEFFECTSCALLBACKW;
+};
+
+/**
+ * Attach to DirectInput8 functions
+ *
+ * @param lpDI Pointer to the DirectInput device.
+ * @return Result of DetourTransaction
+ */
+template <typename IDInput>
+LONG DirectInput8DetourAttach(typename DITraits<IDInput>::DInput *lpDI);
+
+/**
+ * Detach from DirectInput8 functions
+ *
+ * @param lpDI Pointer to the DirectInput device.
+ * @return Result of DetourTransaction
+ */
+template <typename IDInput>
+LONG DirectInput8DetourDetach(typename DITraits<IDInput>::DInput *lpDI);

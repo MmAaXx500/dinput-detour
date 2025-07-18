@@ -4,38 +4,25 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
+#include "direct_input_8.h"
+
 /**
- * Attach to DirectInputDevice8 (A) functions
+ * Attach to DirectInputDevice8 functions
  *
  * @param lpDirectInputDevice Pointer to the DirectInput device.
  * @param rguid GUID of the device
  * @return Result of DetourTransaction
  */
-LONG DirectInputDevice8DetourAttachA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice,
-                                     REFGUID rguid);
+template <typename IDInput>
+LONG DirectInputDevice8DetourAttach(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, REFGUID rguid);
 
 /**
- * Attach to DirectInputDevice8 (W) functions
- *
- * @param lpDirectInputDevice Pointer to the DirectInput device.
- * @param rguid GUID of the device
- * @return Result of DetourTransaction
- */
-LONG DirectInputDevice8DetourAttachW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice,
-                                     REFGUID rguid);
-
-/**
- * Detach from DirectInputDevice8 (A) functions
+ * Detach from DirectInputDevice8 functions
  *
  * @param lpDirectInputDevice Pointer to the DirectInput device.
  * @return Result of DetourTransaction
  */
-LONG DirectInputDevice8DetourDetachA(LPDIRECTINPUTDEVICE8A lpDirectInputDevice);
-
-/**
- * Detach from DirectInputDevice8 (W) functions
- *
- * @param lpDirectInputDevice Pointer to the DirectInput device.
- * @return Result of DetourTransaction
- */
-LONG DirectInputDevice8DetourDetachW(LPDIRECTINPUTDEVICE8W lpDirectInputDevice);
+template <typename IDInput>
+LONG DirectInputDevice8DetourDetach(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice);

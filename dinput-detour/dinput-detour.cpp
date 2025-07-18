@@ -111,26 +111,10 @@ HRESULT WINAPI RoutedDirectInput8Create(HINSTANCE hinst, DWORD dwVersion,
 	    RealDirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
 
 	if (ret == DI_OK) {
-		if (IsEqualIID(riidltf, IID_IDirectInput8A)
-		    && RealDirectInput8VtblA.AddRef == nullptr) {
-			LOG_INFO("Attach vtableA: {}\n",
-			         static_cast<void *>(&((LPDIRECTINPUT8W)*ppvOut)->lpVtbl));
-			RealDirectInput8VtblA = *((LPDIRECTINPUT8A)*ppvOut)->lpVtbl;
-
-			DetourTransaction([]() {
-				DetourAttach(&RealDirectInput8VtblA.CreateDevice,
-				             RoutedDirectInput8CreateDeviceA);
-			});
-		} else if (IsEqualIID(riidltf, IID_IDirectInput8W)
-		           && RealDirectInput8VtblW.AddRef == nullptr) {
-			LOG_INFO("Attach vtableW: {}\n",
-			         static_cast<void *>(&((LPDIRECTINPUT8W)*ppvOut)->lpVtbl));
-			RealDirectInput8VtblW = *(((LPDIRECTINPUT8W)*ppvOut)->lpVtbl);
-
-			DetourTransaction([]() {
-				DetourAttach(&RealDirectInput8VtblW.CreateDevice,
-				             RoutedDirectInput8CreateDeviceW);
-			});
+		if (IsEqualIID(riidltf, IID_IDirectInput8A)) {
+			DirectInput8DetourAttach<IDirectInput8A>((IDirectInput8A *)*ppvOut);
+		} else if (IsEqualIID(riidltf, IID_IDirectInput8W)) {
+			DirectInput8DetourAttach<IDirectInput8W>((IDirectInput8W *)*ppvOut);
 		} else {
 			LOG_ERR("Unknown IID: {}\n", guid_to_str(riidltf));
 		}
