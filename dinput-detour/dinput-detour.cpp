@@ -15,6 +15,7 @@
 
 #include "direct_input_8.h"
 #include "log.h"
+#include "stringconv.h"
 #include "utils.h"
 
 using namespace std;

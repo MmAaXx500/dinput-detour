@@ -2,7 +2,6 @@
 #include <format>
 
 #include "log.h"
-#include "utils.h"
 
 #include "stringconv.h"
 
@@ -504,4 +503,17 @@ string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 	str += format(", dwStartDelay: {}\n", lpeff->dwStartDelay);
 
 	return str;
+}
+
+string wstring_to_string(const wstring &wstr) {
+	if (wstr.empty())
+		return string();
+
+	int size_needed =
+	    WideCharToMultiByte(CP_UTF8, 0, wstr.data(), (int)wstr.size(), nullptr,
+	                        0, nullptr, nullptr);
+	string ret(size_needed, 0);
+	WideCharToMultiByte(CP_UTF8, 0, wstr.data(), (int)wstr.size(), ret.data(),
+	                    size_needed, nullptr, nullptr);
+	return ret;
 }

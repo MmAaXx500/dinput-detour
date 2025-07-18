@@ -4,8 +4,6 @@
 
 #include <dinput.h>
 
-#include "utils.h"
-
 // DWORDs
 
 std::string DIEFTToString(DWORD dwEffType);
@@ -49,6 +47,8 @@ std::string DIENVELOPEToString(const DIENVELOPE &eff);
 std::string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType);
 
 // strings
+
+std::string wstring_to_string(const std::wstring &wstr);
 
 template <typename T> std::string ToString(const T &str) {
 	if constexpr (std::is_same_v<std::decay_t<T>, std::string>
