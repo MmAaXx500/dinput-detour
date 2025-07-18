@@ -5,7 +5,8 @@ add_library(${DETOUR_LIBNAME} SHARED
     "log.cpp"
     "stringconv.cpp"
     "direct_input_8.cpp"
-    "direct_input_device_8.cpp")
+    "direct_input_device_8.cpp"
+    "direct_input_effect.cpp")
 
 if(MSVC)
     target_link_options(${DETOUR_LIBNAME} PRIVATE 

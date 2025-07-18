@@ -18,6 +18,10 @@ std::string DIGFFSToString(DWORD ffstate);
 
 std::string DIEFFToString(DWORD dwFlags);
 
+std::string DIESToString(DWORD dwFlags);
+
+std::string DIEGESToString(DWORD dwFlags);
+
 std::string DurationToString(DWORD duration);
 
 std::string TriggerToString(DWORD trigger);
@@ -45,6 +49,8 @@ std::string DICUSTOMFORCEToString(const DICUSTOMFORCE &eff);
 std::string DIENVELOPEToString(const DIENVELOPE &eff);
 
 std::string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType);
+
+std::string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc);
 
 // strings
 

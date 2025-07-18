@@ -127,6 +127,16 @@ constexpr static array<pair<DWORD, string_view>, 3> DIEFFDirectionStringPairs =
         {DIEFF_SPHERICAL, "DIEFF_SPHERICAL"},
     }};
 
+constexpr static array<pair<DWORD, string_view>, 2> DIESStringPairs = {{
+    {DIES_SOLO, "DIES_SOLO"},
+    {DIES_NODOWNLOAD, "DIES_NODOWNLOAD"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 2> DIEGESStringPairs = {{
+    {DIEGES_PLAYING, "DIEGES_PLAYING"},
+    {DIEGES_EMULATED, "DIEGES_EMULATED"},
+}};
+
 static bool operator==(const DIDATAFORMAT &lhs, const DIDATAFORMAT &rhs) {
 	if (lhs.dwSize != rhs.dwSize || lhs.dwObjSize != rhs.dwObjSize
 	    || lhs.dwFlags != rhs.dwFlags || lhs.dwDataSize != rhs.dwDataSize
@@ -238,6 +248,38 @@ string DIEFFToString(DWORD dwFlags) {
 	}
 
 	return str;
+}
+
+string DIESToString(DWORD dwFlags) {
+	string str;
+	for (auto &&pair : DIESStringPairs) {
+		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	if (!str.empty())
+		return str;
+
+	return format("Unknown DIES: {:#x}", dwFlags);
+}
+
+string DIEGESToString(DWORD dwFlags) {
+	string str;
+	for (auto &&pair : DIEGESStringPairs) {
+		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	if (!str.empty())
+		return str;
+
+	return format("Unknown DIEGES: {:#x}", dwFlags);
 }
 
 string DurationToString(DWORD duration) {
@@ -502,6 +544,14 @@ string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 	str += format(", dwStartDelay: {}", lpeff->dwStartDelay);
 
 	return str;
+}
+
+string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc) {
+	return format("dwSize: {}, dwCommand: {}, lpvInBuffer: {}, cbInBuffer {}, "
+	              "lpvOutBuffer: {}, cbOutBuffer: {}",
+	              lpesc.dwSize, lpesc.dwCommand,
+	              static_cast<void *>(lpesc.lpvInBuffer), lpesc.cbInBuffer,
+	              static_cast<void *>(lpesc.lpvOutBuffer), lpesc.cbOutBuffer);
 }
 
 string wstring_to_string(const wstring &wstr) {

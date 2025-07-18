@@ -1,14 +1,13 @@
+#include <unordered_map>
 #include <unordered_set>
 
 #include "direct_input_device_8.h"
+#include "direct_input_effect.h"
 #include "log.h"
 #include "stringconv.h"
 #include "utils.h"
 
 using namespace std;
-
-template <typename IDInput>
-DITraits<IDInput>::DIDeviceVtbl RealDirectInputDevice8Vtbl = {};
 
 namespace std {
 template <> struct hash<GUID> {
@@ -18,6 +17,12 @@ template <> struct hash<GUID> {
 	}
 };
 } // namespace std
+
+template <typename IDInput>
+DITraits<IDInput>::DIDeviceVtbl RealDirectInputDevice8Vtbl = {};
+
+template <typename IDInput>
+unordered_map<GUID, typename DITraits<IDInput>::DIEffectInfo> EffectInfoCache;
 
 static unordered_set<GUID> seenDevices;
 
@@ -49,6 +54,9 @@ HRESULT DirectInputDevice8CreateEffect(
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.CreateEffect(
 	    lpDirectInputDevice, rguid, lpeff, ppdeff, punkOuter);
+
+	if (SUCCEEDED(hr))
+		DirectInputEffectDetourAttach(*ppdeff);
 
 	LOG_POST("ret: {}\n", ret);
 	return ret;
@@ -150,6 +158,9 @@ BOOL WINAPI EnumEffectsCallback(
 
 	LOG_PRE("pdei: {}, pvRef: {}\n", reinterpret_cast<const void *>(pdei),
 	        pvRef);
+
+	if (pdei->dwSize >= offsetof(DIEffectInfo, guid) + sizeof(pdei->guid))
+		EffectInfoCache<IDInput>[pdei->guid] = *pdei;
 
 	EnumEffectsCallbackData<IDInput> *data =
 	    reinterpret_cast<EnumEffectsCallbackData<IDInput> *>(pvRef);
@@ -315,6 +326,18 @@ CollectDeviceInfo(typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
 }
 
 template <typename IDInput>
+DITraits<IDInput>::DIEffectInfo GetCachedEffectInfo(REFGUID rguid) {
+	using DIEffectInfo = DITraits<IDInput>::DIEffectInfo;
+
+	DIEffectInfo retInfo = {};
+
+	if (!EffectInfoCache<IDInput>.contains(rguid))
+		return retInfo;
+
+	return EffectInfoCache<IDInput>[rguid];
+}
+
+template <typename IDInput>
 LONG DirectInputDevice8DetourAttach(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, REFGUID rguid) {
 	LONG ret = NO_ERROR;
@@ -402,3 +425,9 @@ template LONG DirectInputDevice8DetourDetach<IDirectInput8A>(
 
 template LONG DirectInputDevice8DetourDetach<IDirectInput8W>(
     typename DITraits<IDirectInput8W>::DIDevice *lpDirectInputDevice);
+
+template DITraits<IDirectInput8A>::DIEffectInfo
+GetCachedEffectInfo<IDirectInput8A>(REFGUID rguid);
+
+template DITraits<IDirectInput8W>::DIEffectInfo
+GetCachedEffectInfo<IDirectInput8W>(REFGUID rguid);
