@@ -115,7 +115,7 @@ constexpr static array<pair<DWORD, string_view>, 12> DIGFFSStringPairs = {{
     {DIGFFS_DEVICELOST, "DIGFFS_DEVICELOST"},
 }};
 
-constexpr static array<pair<DWORD, string_view>, 3> DIEFFTriggerStringPairs = {{
+constexpr static array<pair<DWORD, string_view>, 2> DIEFFTriggerStringPairs = {{
     {DIEFF_OBJECTIDS, "DIEFF_OBJECTIDS"},
     {DIEFF_OBJECTOFFSETS, "DIEFF_OBJECTOFFSETS"},
 }};
