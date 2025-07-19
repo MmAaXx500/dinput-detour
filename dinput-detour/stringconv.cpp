@@ -377,7 +377,7 @@ string DIPROPHEADERToString(REFGUID rguidProp, const DIPROPHEADER &diph) {
 	           DIPHHowToString(diph.dwHow), diph.dwHow);
 
 	if (&rguidProp == &DIPROP_APPDATA && diph.dwSize == sizeof(DIPROPPOINTER)) {
-		LPCDIPROPPOINTER pdipp = reinterpret_cast<LPCDIPROPPOINTER>(&diph);
+		auto pdipp = reinterpret_cast<LPCDIPROPPOINTER>(&diph);
 		str += format("uData: {}", pdipp->uData);
 	} else if ((&rguidProp == &DIPROP_AUTOCENTER         //
 	            || &rguidProp == &DIPROP_AXISMODE        //
@@ -392,12 +392,11 @@ string DIPROPHEADERToString(REFGUID rguidProp, const DIPROPHEADER &diph) {
 	            || &rguidProp == &DIPROP_SCANCODE        //
 	            || &rguidProp == &DIPROP_VIDPID)         //
 	           && diph.dwSize == sizeof(DIPROPDWORD)) {
-		LPCDIPROPDWORD pdidw = reinterpret_cast<LPCDIPROPDWORD>(&diph);
+		auto pdidw = reinterpret_cast<LPCDIPROPDWORD>(&diph);
 		str += format("dwData: {} ({:#x})", pdidw->dwData, pdidw->dwData);
 	} else if (&rguidProp == &DIPROP_GUIDANDPATH
 	           && diph.dwSize == sizeof(DIPROPGUIDANDPATH)) {
-		LPCDIPROPGUIDANDPATH pdiguid =
-		    reinterpret_cast<LPCDIPROPGUIDANDPATH>(&diph);
+		auto pdiguid = reinterpret_cast<LPCDIPROPGUIDANDPATH>(&diph);
 		str += format("guidClass: {}, wszPath: {}",
 		              guid_to_str(pdiguid->guidClass),
 		              wstring_to_string(pdiguid->wszPath));
@@ -405,7 +404,7 @@ string DIPROPHEADERToString(REFGUID rguidProp, const DIPROPHEADER &diph) {
 	            || &rguidProp == &DIPROP_PHYSICALRANGE
 	            || &rguidProp == &DIPROP_RANGE)
 	           && diph.dwSize == sizeof(DIPROPRANGE)) {
-		LPCDIPROPRANGE pdirange = reinterpret_cast<LPCDIPROPRANGE>(&diph);
+		auto pdirange = reinterpret_cast<LPCDIPROPRANGE>(&diph);
 		str += format("lMin: {}, lMax: {}", pdirange->lMin, pdirange->lMax);
 	} else if ((&rguidProp == &DIPROP_GETPORTDISPLAYNAME //
 	            || &rguidProp == &DIPROP_INSTANCENAME    //
@@ -414,7 +413,7 @@ string DIPROPHEADERToString(REFGUID rguidProp, const DIPROPHEADER &diph) {
 	            || &rguidProp == &DIPROP_TYPENAME        //
 	            || &rguidProp == &DIPROP_USERNAME)       //
 	           && diph.dwSize == sizeof(DIPROPSTRING)) {
-		LPCDIPROPSTRING pdistr = reinterpret_cast<LPCDIPROPSTRING>(&diph);
+		auto pdistr = reinterpret_cast<LPCDIPROPSTRING>(&diph);
 		str += format("wsz: {}", wstring_to_string(pdistr->wsz));
 	} else if (&rguidProp == &DIPROP_CALIBRATION
 	           || &rguidProp == &DIPROP_CPOINTS) {
@@ -502,23 +501,23 @@ string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 		str += ", lpvTypeSpecificParams: ";
 
 		if (LOBYTE(dwEffType) == DIEFT_CONSTANTFORCE) {
-			LPCDICONSTANTFORCE effconst =
+			auto effconst =
 			    static_cast<LPCDICONSTANTFORCE>(lpeff->lpvTypeSpecificParams);
 
 			str += format("constantForce: {{{}}}",
 			              DICONSTANTFORCEToString(*effconst));
 		} else if (LOBYTE(dwEffType) == DIEFT_RAMPFORCE) {
-			LPCDIRAMPFORCE efframp =
+			auto efframp =
 			    static_cast<LPCDIRAMPFORCE>(lpeff->lpvTypeSpecificParams);
 
 			str += format("rampForce: {{{}}}", DIRAMPFORCEToString(*efframp));
 		} else if (LOBYTE(dwEffType) == DIEFT_PERIODIC) {
-			LPCDIPERIODIC effper =
+			auto effper =
 			    static_cast<LPCDIPERIODIC>(lpeff->lpvTypeSpecificParams);
 
 			str += format("periodic: {{{}}}", DIPERIODICToString(*effper));
 		} else if (LOBYTE(dwEffType) == DIEFT_CONDITION) {
-			LPCDICONDITION lpEffCond =
+			auto lpEffCond =
 			    static_cast<LPCDICONDITION>(lpeff->lpvTypeSpecificParams);
 
 			str += "{";
@@ -531,7 +530,7 @@ string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 			}
 			str += "}";
 		} else if (LOBYTE(dwEffType) == DIEFT_CUSTOMFORCE) {
-			LPCDICUSTOMFORCE customForce =
+			auto customForce =
 			    static_cast<LPCDICUSTOMFORCE>(lpeff->lpvTypeSpecificParams);
 
 			str += format("customForce: {{{}}}",

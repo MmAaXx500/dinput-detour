@@ -162,8 +162,7 @@ BOOL WINAPI EnumEffectsCallback(
 	if (pdei->dwSize >= offsetof(DIEffectInfo, guid) + sizeof(pdei->guid))
 		EffectInfoCache<IDInput>[pdei->guid] = *pdei;
 
-	EnumEffectsCallbackData<IDInput> *data =
-	    reinterpret_cast<EnumEffectsCallbackData<IDInput> *>(pvRef);
+	auto data = reinterpret_cast<EnumEffectsCallbackData<IDInput> *>(pvRef);
 
 	LOG_INFO("pdei dwSize: {}", pdei->dwSize);
 	if (pdei->dwSize >= offsetof(DIEffectInfo, guid) + sizeof(pdei->guid))
