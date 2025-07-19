@@ -3,6 +3,7 @@
 
 #include "log.h"
 #include "stringconv.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -136,15 +137,6 @@ constexpr static array<pair<DWORD, string_view>, 2> DIEGESStringPairs = {{
     {DIEGES_PLAYING, "DIEGES_PLAYING"},
     {DIEGES_EMULATED, "DIEGES_EMULATED"},
 }};
-
-static bool operator==(const DIDATAFORMAT &lhs, const DIDATAFORMAT &rhs) {
-	if (lhs.dwSize != rhs.dwSize || lhs.dwObjSize != rhs.dwObjSize
-	    || lhs.dwFlags != rhs.dwFlags || lhs.dwDataSize != rhs.dwDataSize
-	    || lhs.dwNumObjs != rhs.dwNumObjs)
-		return false;
-
-	return memcmp(lhs.rgodf, rhs.rgodf, lhs.dwNumObjs * lhs.dwObjSize);
-}
 
 string DIEFTToString(DWORD dwEffType) {
 	for (auto &&pair : DIEFTTypeStringPairs) {
