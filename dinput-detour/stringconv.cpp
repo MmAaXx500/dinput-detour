@@ -548,9 +548,8 @@ string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc) {
 	return format("dwSize: {}, dwCommand: {}, lpvInBuffer: {}, cbInBuffer {}, "
 	              "lpvOutBuffer: {}, cbOutBuffer: {}",
-	              lpesc.dwSize, lpesc.dwCommand,
-	              static_cast<void *>(lpesc.lpvInBuffer), lpesc.cbInBuffer,
-	              static_cast<void *>(lpesc.lpvOutBuffer), lpesc.cbOutBuffer);
+	              lpesc.dwSize, lpesc.dwCommand, lpesc.lpvInBuffer,
+	              lpesc.cbInBuffer, lpesc.lpvOutBuffer, lpesc.cbOutBuffer);
 }
 
 string wstring_to_string(const wstring &wstr) {
