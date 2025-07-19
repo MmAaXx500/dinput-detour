@@ -22,6 +22,10 @@ std::string DIESToString(DWORD dwFlags);
 
 std::string DIEGESToString(DWORD dwFlags);
 
+std::string DIGDDToString(DWORD dwFlags);
+
+std::string DIJOFSToString(DWORD dwOfs, const DIDATAFORMAT &lpdf);
+
 std::string DurationToString(DWORD duration);
 
 std::string TriggerToString(DWORD trigger);
@@ -51,6 +55,13 @@ std::string DIENVELOPEToString(const DIENVELOPE &eff);
 std::string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType);
 
 std::string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc);
+
+std::string DIDEVICEOBJECTDATAToString(const DIDEVICEOBJECTDATA &rgdod,
+                                       const DIDATAFORMAT &lpdf);
+
+std::string DIJOYSTATEToString(const DIJOYSTATE &js);
+
+std::string DIJOYSTATE2ToString(const DIJOYSTATE2 &js);
 
 // strings
 

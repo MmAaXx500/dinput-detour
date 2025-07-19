@@ -138,6 +138,26 @@ constexpr static array<pair<DWORD, string_view>, 2> DIEGESStringPairs = {{
     {DIEGES_EMULATED, "DIEGES_EMULATED"},
 }};
 
+constexpr static array<pair<DWORD, string_view>, 1> DIGDDStringPairs = {{
+    {DIGDD_PEEK, "DIGDD_PEEK"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 13> DIJOFSStringPairs = {{
+    {DIJOFS_X, "DIJOFS_X"},
+    {DIJOFS_Y, "DIJOFS_Y"},
+    {DIJOFS_Z, "DIJOFS_Z"},
+    {DIJOFS_RX, "DIJOFS_RX"},
+    {DIJOFS_RY, "DIJOFS_RY"},
+    {DIJOFS_RZ, "DIJOFS_RZ"},
+    {DIJOFS_SLIDER(0), "DIJOFS_SLIDER0"},
+    {DIJOFS_SLIDER(1), "DIJOFS_SLIDER1"},
+    {DIJOFS_POV(0), "DIJOFS_POV0"},
+    {DIJOFS_POV(1), "DIJOFS_POV1"},
+    {DIJOFS_POV(2), "DIJOFS_POV2"},
+    {DIJOFS_POV(3), "DIJOFS_POV3"},
+    // Buttons handled separately
+}};
+
 string DIEFTToString(DWORD dwEffType) {
 	for (auto &&pair : DIEFTTypeStringPairs) {
 		if (DIEFT_GETTYPE(dwEffType) == pair.first)
@@ -272,6 +292,53 @@ string DIEGESToString(DWORD dwFlags) {
 		return str;
 
 	return format("Unknown DIEGES: {:#x}", dwFlags);
+}
+
+string DIGDDToString(DWORD dwFlags) {
+	string str;
+
+	// 0 is a valid value without an associated #define
+	if (dwFlags == 0)
+		return "0";
+
+	for (auto &&pair : DIGDDStringPairs) {
+		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	return format("Unknown DIGDD: {:#x}", dwFlags);
+}
+
+string DIJOFSToString(DWORD dwOfs, const DIDATAFORMAT &lpdf) {
+	if (lpdf == c_dfDIKeyboard)
+		return "Not Implemented DIKeyboard Offset";
+	else if (lpdf == c_dfDIMouse)
+		return "Not Implemented DIMouse Offset";
+	else if (lpdf == c_dfDIMouse2)
+		return "Not Implemented DIMouse2 Offset";
+	else if (lpdf != c_dfDIJoystick && lpdf != c_dfDIJoystick2) {
+		return "Unsupported DIDATAFORMAT";
+	}
+
+	for (auto &&pair : DIJOFSStringPairs) {
+		if (dwOfs == pair.first)
+			return string(pair.second);
+	}
+
+	DWORD buttonMax = DIJOFS_BUTTON(0);
+	if (lpdf == c_dfDIJoystick)
+		buttonMax = DIJOFS_BUTTON31;
+	else if (lpdf == c_dfDIJoystick2)
+		buttonMax = DIJOFS_BUTTON(127);
+
+	if (dwOfs >= DIJOFS_BUTTON0 && dwOfs <= buttonMax) {
+		return format("DIJOFS_BUTTON{}", dwOfs - DIJOFS_BUTTON0);
+	}
+
+	return format("Unknown DIJOFS: {:#x}", dwOfs);
 }
 
 string DurationToString(DWORD duration) {
@@ -542,6 +609,90 @@ string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc) {
 	              "lpvOutBuffer: {}, cbOutBuffer: {}",
 	              lpesc.dwSize, lpesc.dwCommand, lpesc.lpvInBuffer,
 	              lpesc.cbInBuffer, lpesc.lpvOutBuffer, lpesc.cbOutBuffer);
+}
+
+static string DIDODdwDataToString(DWORD dwData, const DIDATAFORMAT &lpdf,
+                                  DWORD dwOfs) {
+	if (lpdf == c_dfDIJoystick || lpdf == c_dfDIJoystick2) {
+		DWORD buttonMax = DIJOFS_BUTTON(0);
+		if (lpdf == c_dfDIJoystick)
+			buttonMax = DIJOFS_BUTTON31;
+		else if (lpdf == c_dfDIJoystick2)
+			buttonMax = DIJOFS_BUTTON(127);
+
+		if (dwOfs >= DIJOFS_BUTTON0 && dwOfs <= buttonMax) {
+			if (dwData & 0x8)
+				return "Pressed";
+			else
+				return "Released";
+		}
+	}
+
+	return format("{:#x}", dwData);
+}
+
+string DIDEVICEOBJECTDATAToString(const DIDEVICEOBJECTDATA &rgdod,
+                                  const DIDATAFORMAT &lpdf) {
+	return format("dwOfs: {}, dwData: {}, dwTimeStamp: {}, dwSequence: {}, "
+	              "uAppData: {:#x}",
+	              DIJOFSToString(rgdod.dwOfs, lpdf),
+	              DIDODdwDataToString(rgdod.dwData, lpdf, rgdod.dwOfs),
+	              rgdod.dwTimeStamp, rgdod.dwSequence, rgdod.uAppData);
+}
+
+string DIJOYSTATEToString(const DIJOYSTATE &js) {
+	string str = format("lX: {}, lY: {}, lZ: {}, lRx: {}, lRy: {}, lRz: {}",
+	                    js.lX, js.lY, js.lZ, js.lRx, js.lRy, js.lRz);
+
+	for (DWORD i = 0; i < 2; i++) {
+		str += format(", rglSlider[{}]: {}", i, js.rglSlider[i]);
+	}
+
+	for (DWORD i = 0; i < 4; i++) {
+		str += format(", rgdwPOV[{}]: {}", i, js.rgdwPOV[i]);
+	}
+
+	for (DWORD i = 0; i < 32; i++) {
+		str += format(", rgbButtons[{}]: {}", i,
+		              js.rgbButtons[i] & 0x8 ? "Down" : "Up");
+	}
+
+	return str;
+}
+
+string DIJOYSTATE2ToString(const DIJOYSTATE2 &js) {
+	string str = DIJOYSTATEToString(reinterpret_cast<const DIJOYSTATE &>(js));
+
+	for (DWORD i = 32; i < 128; i++) {
+		str += format(", rgbButtons[{}]: {}", i,
+		              js.rgbButtons[i] & 0x8 ? "Down" : "Up");
+	}
+
+	str += format(", lVX: {}, lVY: {}, lVZ: {}, lVRx: {}, lVRy: {}, "
+	              "lVRz: {}",
+	              js.lVX, js.lVY, js.lVZ, js.lVRx, js.lVRy, js.lVRz);
+
+	for (DWORD i = 0; i < 2; i++) {
+		str += format(", rglVSlider[{}]: {}", i, js.rglVSlider[i]);
+	}
+
+	str += format(", lAX: {}, lAY: {}, lAZ: {}, lARx: {}, lARy: {}, "
+	              "lARz: {}",
+	              js.lAX, js.lAY, js.lAZ, js.lARx, js.lARy, js.lARz);
+
+	for (DWORD i = 0; i < 2; i++) {
+		str += format(", rglASlider[{}]: {}", i, js.rglASlider[i]);
+	}
+
+	str += format(", lFX: {}, lFY: {}, lFZ: {}, lFRx: {}, lFRy: {}, "
+	              "lFRz: {}",
+	              js.lFX, js.lFY, js.lFZ, js.lFRx, js.lFRy, js.lFRz);
+
+	for (DWORD i = 0; i < 2; i++) {
+		str += format(", rglFSlider[{}]: {}", i, js.rglFSlider[i]);
+	}
+
+	return str;
 }
 
 string wstring_to_string(const wstring &wstr) {

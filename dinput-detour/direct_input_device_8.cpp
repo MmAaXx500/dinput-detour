@@ -122,6 +122,85 @@ HRESULT WINAPI DirectInputDevice8SetProperty(
 }
 
 template <typename IDInput>
+HRESULT WINAPI DirectInputDevice8GetDeviceState(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, DWORD cbData,
+    LPVOID lpvData) {
+	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
+
+	LOG_PRE("lpDirectInputDevice: {}, cbData: {}, lpvData: {}\n",
+	        static_cast<void *>(lpDirectInputDevice), cbData,
+	        static_cast<void *>(lpvData));
+
+	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceState(
+	    lpDirectInputDevice, cbData, lpvData);
+
+	if (SUCCEEDED(ret) && lpvData) {
+		DIDeviceInstance dinst = {};
+		dinst.dwSize = sizeof(DIDeviceInstance);
+		HRESULT hr = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceInfo(
+		    lpDirectInputDevice, &dinst);
+
+		if (SUCCEEDED(hr)) {
+			if (DataFormatCache.contains(dinst.guidInstance)) {
+				LPDIDATAFORMAT lpDf = &DataFormatCache[dinst.guidInstance];
+				LOG_INFO("lpvData: ");
+				if (*lpDf == c_dfDIJoystick)
+					LOG("DIJOYSTATE: {}\n",
+					    DIJOYSTATEToString(
+					        *reinterpret_cast<DIJOYSTATE *>(lpvData)));
+				else if (*lpDf == c_dfDIJoystick2)
+					LOG("DIJOYSTATE2: {}\n",
+					    DIJOYSTATE2ToString(
+					        *reinterpret_cast<DIJOYSTATE2 *>(lpvData)));
+				else {
+					LOG("Unsupported format: {}\n", DIDATAFORMATToString(lpDf));
+				}
+			} else
+				LOG_INFO("lpvData: DIDATAFORMAT not cached\n");
+		}
+	}
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+template <typename IDInput>
+HRESULT WINAPI DirectInputDevice8GetDeviceData(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
+    DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut,
+    DWORD dwFlags) {
+	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
+
+	LOG_PRE("lpDirectInputDevice: {}, cbObjectData: {}, rgdod: {}, "
+	        "pdwInOut: {}, dwFlags: {}\n",
+	        static_cast<void *>(lpDirectInputDevice), cbObjectData,
+	        static_cast<const void *>(rgdod), static_cast<void *>(pdwInOut),
+	        DIGDDToString(dwFlags));
+
+	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceData(
+	    lpDirectInputDevice, cbObjectData, rgdod, pdwInOut, dwFlags);
+
+	if (SUCCEEDED(ret) && rgdod) {
+		DIDeviceInstance dinst = {};
+		dinst.dwSize = sizeof(DIDeviceInstance);
+		HRESULT hr = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceInfo(
+		    lpDirectInputDevice, &dinst);
+
+		if (SUCCEEDED(hr)) {
+			if (DataFormatCache.contains(dinst.guidInstance))
+				LOG_INFO("rgdod: {}\n",
+				         DIDEVICEOBJECTDATAToString(
+				             *rgdod, DataFormatCache[dinst.guidInstance]));
+			else
+				LOG_INFO("rgdod: DIDATAFORMAT not cached\n");
+		}
+	}
+
+	LOG_POST("ret: {}\n", ret);
+	return ret;
+}
+
+template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8SetDataFormat(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     LPCDIDATAFORMAT lpdf) {
@@ -373,6 +452,10 @@ LONG DirectInputDevice8DetourAttach(
 			             DirectInputDevice8GetProperty<IDInput>);
 			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.SetProperty,
 			             DirectInputDevice8SetProperty<IDInput>);
+			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.GetDeviceState,
+			             DirectInputDevice8GetDeviceState<IDInput>);
+			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.GetDeviceData,
+			             DirectInputDevice8GetDeviceData<IDInput>);
 			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.SetDataFormat,
 			             DirectInputDevice8SetDataFormat<IDInput>);
 			DetourAttach(
@@ -410,6 +493,10 @@ LONG DirectInputDevice8DetourDetach(
 			             DirectInputDevice8GetProperty<IDInput>);
 			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.SetProperty,
 			             DirectInputDevice8SetProperty<IDInput>);
+			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.GetDeviceState,
+			             DirectInputDevice8GetDeviceState<IDInput>);
+			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.GetDeviceData,
+			             DirectInputDevice8GetDeviceData<IDInput>);
 			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.SetDataFormat,
 			             DirectInputDevice8SetDataFormat<IDInput>);
 			DetourDetach(
