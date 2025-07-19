@@ -52,7 +52,7 @@ HRESULT DirectInputDevice8CreateEffect(
 	if (FAILED(hr))
 		effinfo.dwEffType = 0;
 
-	LOG_INFO("lpeff: {}", DIEFFECTToString(lpeff, effinfo.dwEffType));
+	LOG_INFO("lpeff: {}\n", DIEFFECTToString(lpeff, effinfo.dwEffType));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.CreateEffect(
 	    lpDirectInputDevice, rguid, lpeff, ppdeff, punkOuter);

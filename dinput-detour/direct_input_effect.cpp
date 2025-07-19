@@ -92,7 +92,7 @@ HRESULT WINAPI RoutedDirectInputEffectGetEffectStatus(
 	    RealDirectInputEffectVtbl.GetEffectStatus(lpDiEffect, pdwFlags);
 
 	if (SUCCEEDED(ret) && pdwFlags)
-		LOG_INFO("pdwFlags: {}", DIEGESToString(*pdwFlags));
+		LOG_INFO("pdwFlags: {}\n", DIEGESToString(*pdwFlags));
 
 	LOG_POST("ret: {}\n", ret);
 	return ret;
@@ -122,7 +122,7 @@ HRESULT WINAPI RoutedDirectInputEffectEscape(LPDIRECTINPUTEFFECT lpDiEffect,
 	        static_cast<void *>(pesc));
 
 	if (pesc)
-		LOG_INFO("pesc: {}", DIEFFESCAPEToString(*pesc));
+		LOG_INFO("pesc: {}\n", DIEFFESCAPEToString(*pesc));
 
 	HRESULT ret = RealDirectInputEffectVtbl.Escape(lpDiEffect, pesc);
 
