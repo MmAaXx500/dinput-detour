@@ -24,6 +24,8 @@ DITraits<IDInput>::DIDeviceVtbl RealDirectInputDevice8Vtbl = {};
 template <typename IDInput>
 unordered_map<GUID, typename DITraits<IDInput>::DIEffectInfo> EffectInfoCache;
 
+static unordered_map<GUID, DIDATAFORMAT> DataFormatCache;
+
 static unordered_set<GUID> seenDevices;
 
 template <typename IDInput> struct EnumEffectsCallbackData {
@@ -123,6 +125,8 @@ template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8SetDataFormat(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     LPCDIDATAFORMAT lpdf) {
+	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
+
 	LOG_PRE("lpDirectInputDevice: {}, lpdf: {}\n",
 	        static_cast<void *>(lpDirectInputDevice),
 	        static_cast<const void *>(lpdf));
@@ -131,6 +135,21 @@ HRESULT WINAPI DirectInputDevice8SetDataFormat(
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.SetDataFormat(
 	    lpDirectInputDevice, lpdf);
+
+	if (SUCCEEDED(ret)) {
+		DIDeviceInstance dinst = {};
+		dinst.dwSize = sizeof(DIDeviceInstance);
+		HRESULT hr = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceInfo(
+		    lpDirectInputDevice, &dinst);
+
+		if (SUCCEEDED(hr)) {
+			if (DataFormatCache.contains(dinst.guidInstance)) {
+				FreeDIDATAFORMAT(&DataFormatCache[dinst.guidInstance]);
+			}
+
+			CopyDIDATAFORMAT(&DataFormatCache[dinst.guidInstance], *lpdf);
+		}
+	}
 
 	LOG_POST("ret: {}\n", ret);
 	return ret;
