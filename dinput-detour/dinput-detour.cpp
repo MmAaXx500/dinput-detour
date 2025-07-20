@@ -133,16 +133,21 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved) {
 		DetourRestoreAfterWith();
 
 		// Create logfile
-		// format: some/path/<process name>-<PID>-dinput.log
+		// format: some/path/<process name>-yyyy-mm-dd-HH-MM-<PID>-dinput.log
 
 		CHAR procname[MAX_PATH] = {0};
 		GetModuleFileName(GetModuleHandle(nullptr), procname, MAX_PATH);
 		DWORD procid = GetCurrentProcessId();
 
+		SYSTEMTIME systime = {};
+		GetLocalTime(&systime);
+
 		if (logger == nullptr) {
 			logger = new Logger(
-			    format("{}-{}-dinput.log",
-			           filesystem::path(procname).filename().string(), procid));
+			    format("{}-{}-{}-{}-{}-{}-{}-dinput.log",
+			           filesystem::path(procname).filename().string(),
+			           systime.wYear, systime.wMonth, systime.wDay,
+			           systime.wHour, systime.wMinute, procid));
 		}
 
 		// Detour functions
