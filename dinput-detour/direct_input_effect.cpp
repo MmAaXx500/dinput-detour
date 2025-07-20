@@ -164,21 +164,21 @@ LONG DirectInputEffectDetourDetach(LPDIRECTINPUTEFFECT lpDiEffect) {
 
 	if (RealDirectInputEffectVtbl.AddRef != nullptr && lpDiEffect) {
 		ret = DetourTransaction([]() {
-			DetourAttach(&RealDirectInputEffectVtbl.GetParameters,
+			DetourDetach(&RealDirectInputEffectVtbl.GetParameters,
 			             RoutedDirectInputEffectGetParameters);
-			DetourAttach(&RealDirectInputEffectVtbl.SetParameters,
+			DetourDetach(&RealDirectInputEffectVtbl.SetParameters,
 			             RoutedDirectInputEffectSetParameters);
-			DetourAttach(&RealDirectInputEffectVtbl.Start,
+			DetourDetach(&RealDirectInputEffectVtbl.Start,
 			             RoutedDirectInputEffectStart);
-			DetourAttach(&RealDirectInputEffectVtbl.Stop,
+			DetourDetach(&RealDirectInputEffectVtbl.Stop,
 			             RoutedDirectInputEffectStop);
-			DetourAttach(&RealDirectInputEffectVtbl.GetEffectStatus,
+			DetourDetach(&RealDirectInputEffectVtbl.GetEffectStatus,
 			             RoutedDirectInputEffectGetEffectStatus);
-			DetourAttach(&RealDirectInputEffectVtbl.Download,
+			DetourDetach(&RealDirectInputEffectVtbl.Download,
 			             RoutedDirectInputEffectDownload);
-			DetourAttach(&RealDirectInputEffectVtbl.Unload,
+			DetourDetach(&RealDirectInputEffectVtbl.Unload,
 			             RoutedDirectInputEffectUnload);
-			DetourAttach(&RealDirectInputEffectVtbl.Escape,
+			DetourDetach(&RealDirectInputEffectVtbl.Escape,
 			             RoutedDirectInputEffectEscape);
 		});
 
