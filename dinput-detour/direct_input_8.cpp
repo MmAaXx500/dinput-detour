@@ -11,10 +11,11 @@ HRESULT WINAPI DirectInput8CreateDevice(
     typename DITraits<IDInput>::DInput *lpDI, REFGUID rguid,
     typename DITraits<IDInput>::DIDevice **lplpDirectInputDevice,
     LPUNKNOWN pUnkOuter) {
-	LOG_PRE("lpDI: {} guid: {}, lplpDirectInputDevice: {}, pUnkOuter: {}\n",
-	        static_cast<void *>(lpDI), guid_to_str(rguid),
-	        static_cast<void *>(lplpDirectInputDevice),
-	        static_cast<void *>(pUnkOuter));
+	LOG_PRE_T(IDInput,
+	          "lpDI: {} guid: {}, lplpDirectInputDevice: {}, pUnkOuter: {}\n",
+	          static_cast<void *>(lpDI), guid_to_str(rguid),
+	          static_cast<void *>(lplpDirectInputDevice),
+	          static_cast<void *>(pUnkOuter));
 
 	DWORD ret = RealDirectInput8Vtbl<IDInput>.CreateDevice(
 	    lpDI, rguid, lplpDirectInputDevice, pUnkOuter);
@@ -23,7 +24,7 @@ HRESULT WINAPI DirectInput8CreateDevice(
 		DirectInputDevice8DetourAttach<IDInput>(*lplpDirectInputDevice, rguid);
 	}
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 

@@ -39,11 +39,12 @@ HRESULT DirectInputDevice8CreateEffect(
     LPCDIEFFECT lpeff, LPDIRECTINPUTEFFECT *ppdeff, LPUNKNOWN punkOuter) {
 	using EffectInfo = DITraits<IDInput>::DIEffectInfo;
 
-	LOG_PRE("lpDirectInputDevice: {}, rguid: {}, lpeff: {}, ppdeff: {}, "
-	        "punkOuter: {}\n",
-	        static_cast<void *>(lpDirectInputDevice), guid_to_str(rguid),
-	        static_cast<const void *>(lpeff), static_cast<void *>(ppdeff),
-	        static_cast<void *>(punkOuter));
+	LOG_PRE_T(IDInput,
+	          "lpDirectInputDevice: {}, rguid: {}, lpeff: {}, ppdeff: {}, "
+	          "punkOuter: {}\n",
+	          static_cast<void *>(lpDirectInputDevice), guid_to_str(rguid),
+	          static_cast<const void *>(lpeff), static_cast<void *>(ppdeff),
+	          static_cast<void *>(punkOuter));
 
 	EffectInfo effinfo = {};
 	effinfo.dwSize = sizeof(EffectInfo);
@@ -52,7 +53,8 @@ HRESULT DirectInputDevice8CreateEffect(
 	if (FAILED(hr))
 		effinfo.dwEffType = 0;
 
-	LOG_INFO("lpeff: {}\n", DIEFFECTToString(lpeff, effinfo.dwEffType));
+	LOG_INFO_T(IDInput, "lpeff: {}\n",
+	           DIEFFECTToString(lpeff, effinfo.dwEffType));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.CreateEffect(
 	    lpDirectInputDevice, rguid, lpeff, ppdeff, punkOuter);
@@ -60,7 +62,7 @@ HRESULT DirectInputDevice8CreateEffect(
 	if (SUCCEEDED(hr))
 		DirectInputEffectDetourAttach(*ppdeff);
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
@@ -68,17 +70,17 @@ template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8GetCapabilities(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     LPDIDEVCAPS lpDIDevCaps) {
-	LOG_PRE("lpDirectInputDevice: {}, lpDIDevCaps: {}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        static_cast<void *>(lpDIDevCaps));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, lpDIDevCaps: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<void *>(lpDIDevCaps));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetCapabilities(
 	    lpDirectInputDevice, lpDIDevCaps);
 
 	if (SUCCEEDED(ret) && lpDIDevCaps)
-		LOG_INFO("{}\n", DIDEVCAPSToString(*lpDIDevCaps));
+		LOG_INFO_T(IDInput, "{}\n", DIDEVCAPSToString(*lpDIDevCaps));
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
@@ -86,19 +88,21 @@ template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8GetProperty(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     REFGUID rguidProp, LPDIPROPHEADER pdiph) {
-	LOG_PRE("lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        static_cast<const void *>(&rguidProp), static_cast<void *>(pdiph));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<const void *>(&rguidProp),
+	          static_cast<void *>(pdiph));
 
-	LOG_INFO("rguidProp: {}\n", DIPROPToString(rguidProp));
+	LOG_INFO_T(IDInput, "rguidProp: {}\n", DIPROPToString(rguidProp));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetProperty(
 	    lpDirectInputDevice, rguidProp, pdiph);
 
 	if (SUCCEEDED(ret))
-		LOG_INFO("pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
+		LOG_INFO_T(IDInput, "pdiph: {}\n",
+		           DIPROPHEADERToString(rguidProp, *pdiph));
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
@@ -106,18 +110,18 @@ template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8SetProperty(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
-	LOG_PRE("lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        static_cast<const void *>(&rguidProp),
-	        static_cast<const void *>(pdiph));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<const void *>(&rguidProp),
+	          static_cast<const void *>(pdiph));
 
-	LOG_INFO("rguidProp: {}\n", DIPROPToString(rguidProp));
+	LOG_INFO_T(IDInput, "rguidProp: {}\n", DIPROPToString(rguidProp));
 
-	LOG_INFO("pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
+	LOG_INFO_T(IDInput, "pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.SetProperty(
 	    lpDirectInputDevice, rguidProp, pdiph);
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
@@ -127,9 +131,9 @@ HRESULT WINAPI DirectInputDevice8GetDeviceState(
     LPVOID lpvData) {
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
 
-	LOG_PRE("lpDirectInputDevice: {}, cbData: {}, lpvData: {}\n",
-	        static_cast<void *>(lpDirectInputDevice), cbData,
-	        static_cast<void *>(lpvData));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, cbData: {}, lpvData: {}\n",
+	          static_cast<void *>(lpDirectInputDevice), cbData,
+	          static_cast<void *>(lpvData));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceState(
 	    lpDirectInputDevice, cbData, lpvData);
@@ -143,7 +147,7 @@ HRESULT WINAPI DirectInputDevice8GetDeviceState(
 		if (SUCCEEDED(hr)) {
 			if (DataFormatCache.contains(dinst.guidInstance)) {
 				LPDIDATAFORMAT lpDf = &DataFormatCache[dinst.guidInstance];
-				LOG_INFO("lpvData: ");
+				LOG_INFO_T(IDInput, "lpvData: ");
 				if (*lpDf == c_dfDIJoystick)
 					LOG("DIJOYSTATE: {}\n",
 					    DIJOYSTATEToString(
@@ -156,11 +160,11 @@ HRESULT WINAPI DirectInputDevice8GetDeviceState(
 					LOG("Unsupported format: {}\n", DIDATAFORMATToString(lpDf));
 				}
 			} else
-				LOG_INFO("lpvData: DIDATAFORMAT not cached\n");
+				LOG_INFO_T(IDInput, "lpvData: DIDATAFORMAT not cached\n");
 		}
 	}
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
@@ -171,11 +175,12 @@ HRESULT WINAPI DirectInputDevice8GetDeviceData(
     DWORD dwFlags) {
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
 
-	LOG_PRE("lpDirectInputDevice: {}, cbObjectData: {}, rgdod: {}, "
-	        "pdwInOut: {}, dwFlags: {}\n",
-	        static_cast<void *>(lpDirectInputDevice), cbObjectData,
-	        static_cast<const void *>(rgdod), static_cast<void *>(pdwInOut),
-	        DIGDDToString(dwFlags));
+	LOG_PRE_T(IDInput,
+	          "lpDirectInputDevice: {}, cbObjectData: {}, rgdod: {}, "
+	          "pdwInOut: {}, dwFlags: {}\n",
+	          static_cast<void *>(lpDirectInputDevice), cbObjectData,
+	          static_cast<const void *>(rgdod), static_cast<void *>(pdwInOut),
+	          DIGDDToString(dwFlags));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceData(
 	    lpDirectInputDevice, cbObjectData, rgdod, pdwInOut, dwFlags);
@@ -188,15 +193,15 @@ HRESULT WINAPI DirectInputDevice8GetDeviceData(
 
 		if (SUCCEEDED(hr)) {
 			if (DataFormatCache.contains(dinst.guidInstance))
-				LOG_INFO("rgdod: {}\n",
-				         DIDEVICEOBJECTDATAToString(
-				             *rgdod, DataFormatCache[dinst.guidInstance]));
+				LOG_INFO_T(IDInput, "rgdod: {}\n",
+				           DIDEVICEOBJECTDATAToString(
+				               *rgdod, DataFormatCache[dinst.guidInstance]));
 			else
-				LOG_INFO("rgdod: DIDATAFORMAT not cached\n");
+				LOG_INFO_T(IDInput, "rgdod: DIDATAFORMAT not cached\n");
 		}
 	}
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
@@ -206,11 +211,11 @@ HRESULT WINAPI DirectInputDevice8SetDataFormat(
     LPCDIDATAFORMAT lpdf) {
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
 
-	LOG_PRE("lpDirectInputDevice: {}, lpdf: {}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        static_cast<const void *>(lpdf));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, lpdf: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<const void *>(lpdf));
 
-	LOG_INFO("lpdf: {}\n", DIDATAFORMATToString(lpdf));
+	LOG_INFO_T(IDInput, "lpdf: {}\n", DIDATAFORMATToString(lpdf));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.SetDataFormat(
 	    lpDirectInputDevice, lpdf);
@@ -230,21 +235,21 @@ HRESULT WINAPI DirectInputDevice8SetDataFormat(
 		}
 	}
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
 template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8SetEventNotification(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, HANDLE hEvent) {
-	LOG_PRE("lpDirectInputDevice: {}, hEvent: {}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        static_cast<void *>(hEvent));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, hEvent: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<void *>(hEvent));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.SetEventNotification(
 	    lpDirectInputDevice, hEvent);
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 
 	return ret;
 }
@@ -254,15 +259,15 @@ BOOL WINAPI EnumEffectsCallback(
     const typename DITraits<IDInput>::DIEffectInfo *pdei, LPVOID pvRef) {
 	using DIEffectInfo = DITraits<IDInput>::DIEffectInfo;
 
-	LOG_PRE("pdei: {}, pvRef: {}\n", reinterpret_cast<const void *>(pdei),
-	        pvRef);
+	LOG_PRE_T(IDInput, "pdei: {}, pvRef: {}\n",
+	          reinterpret_cast<const void *>(pdei), pvRef);
 
 	if (pdei->dwSize >= offsetof(DIEffectInfo, guid) + sizeof(pdei->guid))
 		EffectInfoCache<IDInput>[pdei->guid] = *pdei;
 
 	auto data = reinterpret_cast<EnumEffectsCallbackData<IDInput> *>(pvRef);
 
-	LOG_INFO("pdei dwSize: {}", pdei->dwSize);
+	LOG_INFO_T(IDInput, "pdei dwSize: {}", pdei->dwSize);
 	if (pdei->dwSize >= offsetof(DIEffectInfo, guid) + sizeof(pdei->guid))
 		LOG(", guid: {}", guid_to_str(pdei->guid));
 	if (pdei->dwSize
@@ -288,7 +293,7 @@ BOOL WINAPI EnumEffectsCallback(
 
 	BOOL ret = data->realCallback(pdei, data->realData);
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 
 	return ret;
 }
@@ -298,12 +303,13 @@ HRESULT WINAPI DirectInputDevice8EnumEffects(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     typename DITraits<IDInput>::DIEnumEffectsCallback lpCallback, LPVOID pvRef,
     DWORD dwEffType) {
-	LOG_PRE("lpDirectInputDevice: {}, lpCallback: {}, pvRef: {}, "
-	        "dwEffType: {:x}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        reinterpret_cast<void *>(lpCallback), pvRef, dwEffType);
+	LOG_PRE_T(IDInput,
+	          "lpDirectInputDevice: {}, lpCallback: {}, pvRef: {}, "
+	          "dwEffType: {:x}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          reinterpret_cast<void *>(lpCallback), pvRef, dwEffType);
 
-	LOG_INFO("dwEffType: {}\n", DIEFTToString(dwEffType));
+	LOG_INFO_T(IDInput, "dwEffType: {}\n", DIEFTToString(dwEffType));
 
 	EnumEffectsCallbackData<IDInput> data{
 	    .realCallback = lpCallback,
@@ -313,7 +319,7 @@ HRESULT WINAPI DirectInputDevice8EnumEffects(
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.EnumEffects(
 	    lpDirectInputDevice, EnumEffectsCallback<IDInput>, &data, dwEffType);
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
 }
 
@@ -323,15 +329,15 @@ HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
     typename DITraits<IDInput>::DIDeviceInstance *pdidi) {
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
 
-	LOG_PRE("lpDirectInputDevice: {}, pdidi: {}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        static_cast<void *>(pdidi));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, pdidi: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<void *>(pdidi));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceInfo(
 	    lpDirectInputDevice, pdidi);
 
 	if (SUCCEEDED(ret)) {
-		LOG_INFO("pdidi dwSize: {}", pdidi->dwSize);
+		LOG_INFO_T(IDInput, "pdidi dwSize: {}", pdidi->dwSize);
 
 		if (pdidi->dwSize >= offsetof(DIDeviceInstance, guidInstance)
 		                         + sizeof(pdidi->guidInstance))
@@ -374,9 +380,9 @@ HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
 template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8GetForceFeedbackState(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, LPDWORD pdwOut) {
-	LOG_PRE("lpDirectInputDevice: {}, pdwOut: {}\n",
-	        static_cast<void *>(lpDirectInputDevice),
-	        static_cast<void *>(pdwOut));
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, pdwOut: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<void *>(pdwOut));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetForceFeedbackState(
 	    lpDirectInputDevice, pdwOut);
@@ -384,7 +390,7 @@ HRESULT WINAPI DirectInputDevice8GetForceFeedbackState(
 	if (SUCCEEDED(ret) && pdwOut)
 		DIGFFSToString(*pdwOut);
 
-	LOG_POST("ret: {}\n", ret);
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
 
 	return ret;
 }
@@ -403,7 +409,7 @@ CollectDeviceInfo(typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
 	if (seenDevices.contains(rguid))
 		return;
 
-	LOG_PRE("Collecting device info for: {}\n", guid_to_str(rguid));
+	LOG_PRE_T(IDInput, "Collecting device info for: {}\n", guid_to_str(rguid));
 
 	seenDevices.insert(rguid);
 
@@ -419,7 +425,7 @@ CollectDeviceInfo(typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
 	RealDirectInputDevice8Vtbl<IDInput>.EnumEffects(
 	    lpDirectInputDevice, EnumEffectsCallback<IDInput>, nullptr, DIEFT_ALL);
 
-	LOG_POST("Collection ended for: {}\n", guid_to_str(rguid));
+	LOG_POST_T(IDInput, "Collection ended for: {}\n", guid_to_str(rguid));
 }
 
 template <typename IDInput>

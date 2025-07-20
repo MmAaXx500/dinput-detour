@@ -5,6 +5,7 @@
 template <typename IDInput> struct DITraits;
 
 template <> struct DITraits<IDirectInput8A> {
+	static constexpr char api_sfx = 'A';
 	using DInput = IDirectInput8A;
 	using DInputVtbl = IDirectInput8AVtbl;
 	using DIDevice = IDirectInputDevice8A;
@@ -15,6 +16,7 @@ template <> struct DITraits<IDirectInput8A> {
 };
 
 template <> struct DITraits<IDirectInput8W> {
+	static constexpr char api_sfx = 'W';
 	using DInput = IDirectInput8W;
 	using DInputVtbl = IDirectInput8WVtbl;
 	using DIDevice = IDirectInputDevice8W;
