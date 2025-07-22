@@ -19,10 +19,11 @@ template <> struct hash<GUID> {
 } // namespace std
 
 template <typename IDInput>
-DITraits<IDInput>::DIDeviceVtbl RealDirectInputDevice8Vtbl = {};
+static DITraits<IDInput>::DIDeviceVtbl RealDirectInputDevice8Vtbl = {};
 
 template <typename IDInput>
-unordered_map<GUID, typename DITraits<IDInput>::DIEffectInfo> EffectInfoCache;
+static unordered_map<GUID, typename DITraits<IDInput>::DIEffectInfo>
+    EffectInfoCache;
 
 static unordered_map<GUID, DIDATAFORMAT> DataFormatCache;
 
@@ -39,7 +40,7 @@ template <typename IDInput> struct EnumDeviceObjectsCallbackData {
 };
 
 template <typename IDInput>
-HRESULT DirectInputDevice8CreateEffect(
+static HRESULT DirectInputDevice8CreateEffect(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, REFGUID rguid,
     LPCDIEFFECT lpeff, LPDIRECTINPUTEFFECT *ppdeff, LPUNKNOWN punkOuter) {
 	using EffectInfo = DITraits<IDInput>::DIEffectInfo;
@@ -72,7 +73,7 @@ HRESULT DirectInputDevice8CreateEffect(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8GetCapabilities(
+static HRESULT WINAPI DirectInputDevice8GetCapabilities(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     LPDIDEVCAPS lpDIDevCaps) {
 	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, lpDIDevCaps: {}\n",
@@ -91,7 +92,7 @@ HRESULT WINAPI DirectInputDevice8GetCapabilities(
 }
 
 template <typename IDInput>
-BOOL WINAPI EnumObjectsCallback(
+static BOOL WINAPI EnumObjectsCallback(
     const typename DITraits<IDInput>::DIDeviceObjectInstance *lpddoi,
     LPVOID pvRef) {
 
@@ -117,7 +118,7 @@ BOOL WINAPI EnumObjectsCallback(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8EnumObjects(
+static HRESULT WINAPI DirectInputDevice8EnumObjects(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     typename DITraits<IDInput>::DIEnumDeviceObjectCallback lpCallback,
     LPVOID pvRef, DWORD dwFlags) {
@@ -141,7 +142,7 @@ HRESULT WINAPI DirectInputDevice8EnumObjects(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8GetProperty(
+static HRESULT WINAPI DirectInputDevice8GetProperty(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     REFGUID rguidProp, LPDIPROPHEADER pdiph) {
 	LOG_PRE_T(
@@ -161,7 +162,7 @@ HRESULT WINAPI DirectInputDevice8GetProperty(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8SetProperty(
+static HRESULT WINAPI DirectInputDevice8SetProperty(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
 	LOG_PRE_T(IDInput,
@@ -179,7 +180,7 @@ HRESULT WINAPI DirectInputDevice8SetProperty(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8GetDeviceState(
+static HRESULT WINAPI DirectInputDevice8GetDeviceState(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, DWORD cbData,
     LPVOID lpvData) {
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
@@ -222,7 +223,7 @@ HRESULT WINAPI DirectInputDevice8GetDeviceState(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8GetDeviceData(
+static HRESULT WINAPI DirectInputDevice8GetDeviceData(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut,
     DWORD dwFlags) {
@@ -259,7 +260,7 @@ HRESULT WINAPI DirectInputDevice8GetDeviceData(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8SetDataFormat(
+static HRESULT WINAPI DirectInputDevice8SetDataFormat(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     LPCDIDATAFORMAT lpdf) {
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
@@ -293,7 +294,7 @@ HRESULT WINAPI DirectInputDevice8SetDataFormat(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8SetEventNotification(
+static HRESULT WINAPI DirectInputDevice8SetEventNotification(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, HANDLE hEvent) {
 	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, hEvent: {}\n",
 	          static_cast<void *>(lpDirectInputDevice),
@@ -308,7 +309,7 @@ HRESULT WINAPI DirectInputDevice8SetEventNotification(
 }
 
 template <typename IDInput>
-BOOL WINAPI EnumEffectsCallback(
+static BOOL WINAPI EnumEffectsCallback(
     const typename DITraits<IDInput>::DIEffectInfo *pdei, LPVOID pvRef) {
 	using DIEffectInfo = DITraits<IDInput>::DIEffectInfo;
 
@@ -352,7 +353,7 @@ BOOL WINAPI EnumEffectsCallback(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8EnumEffects(
+static HRESULT WINAPI DirectInputDevice8EnumEffects(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     typename DITraits<IDInput>::DIEnumEffectsCallback lpCallback, LPVOID pvRef,
     DWORD dwEffType) {
@@ -376,7 +377,7 @@ HRESULT WINAPI DirectInputDevice8EnumEffects(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8GetObjectInfo(
+static HRESULT WINAPI DirectInputDevice8GetObjectInfo(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     typename DITraits<IDInput>::DIDeviceObjectInstance *pdidoi, DWORD dwObj,
     DWORD dwHow) {
@@ -400,7 +401,7 @@ HRESULT WINAPI DirectInputDevice8GetObjectInfo(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
+static HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     typename DITraits<IDInput>::DIDeviceInstance *pdidi) {
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
@@ -454,7 +455,7 @@ HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8GetForceFeedbackState(
+static HRESULT WINAPI DirectInputDevice8GetForceFeedbackState(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, LPDWORD pdwOut) {
 	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, pdwOut: {}\n",
 	          static_cast<void *>(lpDirectInputDevice),
@@ -472,7 +473,7 @@ HRESULT WINAPI DirectInputDevice8GetForceFeedbackState(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8SendForceFeedbackCommand(
+static HRESULT WINAPI DirectInputDevice8SendForceFeedbackCommand(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, DWORD dwFlags) {
 	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, dwFlags: {} ({:#x})\n",
 	          static_cast<void *>(lpDirectInputDevice), DISFFCToString(dwFlags),
@@ -487,7 +488,7 @@ HRESULT WINAPI DirectInputDevice8SendForceFeedbackCommand(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInputDevice8Escape(
+static HRESULT WINAPI DirectInputDevice8Escape(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     LPDIEFFESCAPE pesc) {
 	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, pesc: {}\n",

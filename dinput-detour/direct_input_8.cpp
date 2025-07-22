@@ -5,7 +5,7 @@
 #include "utils.h"
 
 template <typename IDInput>
-DITraits<IDInput>::DInputVtbl RealDirectInput8Vtbl = {};
+static DITraits<IDInput>::DInputVtbl RealDirectInput8Vtbl = {};
 
 template <typename IDInput> struct EnumDevicesCallbackData {
 	DITraits<IDInput>::DIEnumDevicesCallback realCallback;
@@ -13,7 +13,7 @@ template <typename IDInput> struct EnumDevicesCallbackData {
 };
 
 template <typename IDInput>
-HRESULT WINAPI DirectInput8CreateDevice(
+static HRESULT WINAPI DirectInput8CreateDevice(
     typename DITraits<IDInput>::DInput *lpDI, REFGUID rguid,
     typename DITraits<IDInput>::DIDevice **lplpDirectInputDevice,
     LPUNKNOWN pUnkOuter) {
@@ -35,7 +35,7 @@ HRESULT WINAPI DirectInput8CreateDevice(
 }
 
 template <typename IDInput>
-BOOL WINAPI EnumDevicesCallback(
+static BOOL WINAPI EnumDevicesCallback(
     const typename DITraits<IDInput>::DIDeviceInstance *lpddi, LPVOID pvref) {
 
 	BOOL ret = DIENUM_CONTINUE;
@@ -60,7 +60,7 @@ BOOL WINAPI EnumDevicesCallback(
 }
 
 template <typename IDInput>
-HRESULT WINAPI DirectInput8EnumDevices(
+static HRESULT WINAPI DirectInput8EnumDevices(
     typename DITraits<IDInput>::DInput *lpDI, DWORD dwDevType,
     typename DITraits<IDInput>::DIEnumDevicesCallback lpCallback, LPVOID pvRef,
     DWORD dwFlags) {

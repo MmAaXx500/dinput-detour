@@ -18,7 +18,7 @@ static DWORD GetEffectTypeInfo(REFGUID rguid) {
 	return GetCachedEffectInfo<IDirectInput8W>(rguid).dwEffType;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectGetParameters(
+static HRESULT WINAPI RoutedDirectInputEffectGetParameters(
     LPDIRECTINPUTEFFECT lpDiEffect, LPDIEFFECT peff, DWORD dwFlags) {
 	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), static_cast<void *>(peff),
@@ -39,7 +39,7 @@ HRESULT WINAPI RoutedDirectInputEffectGetParameters(
 	return ret;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectSetParameters(
+static HRESULT WINAPI RoutedDirectInputEffectSetParameters(
     LPDIRECTINPUTEFFECT lpDiEffect, LPCDIEFFECT peff, DWORD dwFlags) {
 	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), static_cast<const void *>(peff),
@@ -58,8 +58,8 @@ HRESULT WINAPI RoutedDirectInputEffectSetParameters(
 	return ret;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectStart(LPDIRECTINPUTEFFECT lpDiEffect,
-                                            DWORD dwIterations, DWORD dwFlags) {
+static HRESULT WINAPI RoutedDirectInputEffectStart(
+    LPDIRECTINPUTEFFECT lpDiEffect, DWORD dwIterations, DWORD dwFlags) {
 	LOG_PRE("lpDiEffect: {}, dwIterations: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), dwIterations,
 	        DIESToString(dwFlags), dwFlags);
@@ -70,7 +70,8 @@ HRESULT WINAPI RoutedDirectInputEffectStart(LPDIRECTINPUTEFFECT lpDiEffect,
 	return ret;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectStop(LPDIRECTINPUTEFFECT lpDiEffect) {
+static HRESULT WINAPI
+RoutedDirectInputEffectStop(LPDIRECTINPUTEFFECT lpDiEffect) {
 	LOG_PRE("lpDiEffect: {}\n", static_cast<void *>(lpDiEffect));
 
 	HRESULT ret = RealDirectInputEffectVtbl.Stop(lpDiEffect);
@@ -79,7 +80,7 @@ HRESULT WINAPI RoutedDirectInputEffectStop(LPDIRECTINPUTEFFECT lpDiEffect) {
 	return ret;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectGetEffectStatus(
+static HRESULT WINAPI RoutedDirectInputEffectGetEffectStatus(
     LPDIRECTINPUTEFFECT lpDiEffect, LPDWORD pdwFlags) {
 	LOG_PRE("lpDiEffect: {}, pdwFlags: {}\n", static_cast<void *>(lpDiEffect),
 	        static_cast<void *>(pdwFlags));
@@ -95,7 +96,8 @@ HRESULT WINAPI RoutedDirectInputEffectGetEffectStatus(
 	return ret;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectDownload(LPDIRECTINPUTEFFECT lpDiEffect) {
+static HRESULT WINAPI
+RoutedDirectInputEffectDownload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	LOG_PRE("lpDiEffect: {}\n", static_cast<void *>(lpDiEffect));
 
 	HRESULT ret = RealDirectInputEffectVtbl.Download(lpDiEffect);
@@ -104,7 +106,8 @@ HRESULT WINAPI RoutedDirectInputEffectDownload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	return ret;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectUnload(LPDIRECTINPUTEFFECT lpDiEffect) {
+static HRESULT WINAPI
+RoutedDirectInputEffectUnload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	LOG_PRE("lpDiEffect: {}\n", static_cast<void *>(lpDiEffect));
 
 	HRESULT ret = RealDirectInputEffectVtbl.Unload(lpDiEffect);
@@ -113,8 +116,8 @@ HRESULT WINAPI RoutedDirectInputEffectUnload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	return ret;
 }
 
-HRESULT WINAPI RoutedDirectInputEffectEscape(LPDIRECTINPUTEFFECT lpDiEffect,
-                                             LPDIEFFESCAPE pesc) {
+static HRESULT WINAPI RoutedDirectInputEffectEscape(
+    LPDIRECTINPUTEFFECT lpDiEffect, LPDIEFFESCAPE pesc) {
 	LOG_PRE("lpDiEffect: {}, pesc: {}\n", static_cast<void *>(lpDiEffect),
 	        static_cast<void *>(pesc));
 
