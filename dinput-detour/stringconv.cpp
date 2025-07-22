@@ -158,20 +158,23 @@ constexpr static array<pair<DWORD, string_view>, 13> DIJOFSStringPairs = {{
     // Buttons handled separately
 }};
 
-constexpr static array<pair<DWORD, string_view>, 10> DIDFTTypeStringPairs = {{
-    {DIDFT_ALL, "DIDFT_ALL"},
+constexpr static array<pair<DWORD, string_view>, 3> DIDFTGroup1StringPairs = {{
     {DIDFT_AXIS, "DIDFT_AXIS"}, // REL + ABS
     {DIDFT_RELAXIS, "DIDFT_RELAXIS"},
     {DIDFT_ABSAXIS, "DIDFT_ABSAXIS"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 3> DIDFTGroup2StringPairs = {{
     {DIDFT_BUTTON, "DIDFT_BUTTON"}, // PSH + TGL
     {DIDFT_PSHBUTTON, "DIDFT_PSHBUTTON"},
     {DIDFT_TGLBUTTON, "DIDFT_TGLBUTTON"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 9> DIDFTFlagStringPairs = {{
+    // DIDFT_ALL handled separately
     {DIDFT_POV, "DIDFT_POV"},
     {DIDFT_COLLECTION, "DIDFT_COLLECTION"},
     {DIDFT_NODATA, "DIDFT_NODATA"},
-}};
-
-constexpr static array<pair<DWORD, string_view>, 6> DIDFTFlagStringPairs = {{
     {DIDFT_FFACTUATOR, "DIDFT_FFACTUATOR"},
     {DIDFT_FFEFFECTTRIGGER, "DIDFT_FFEFFECTTRIGGER"},
     {DIDFT_OUTPUT, "DIDFT_OUTPUT"},
@@ -421,14 +424,28 @@ string DIJOFSToString(DWORD dwOfs, const DIDATAFORMAT &lpdf) {
 
 string DIDFTToString(DWORD dwType) {
 	string str;
-	for (auto &&pair : DIDFTTypeStringPairs) {
-		if (DIDFT_GETTYPE(dwType) == pair.first) {
-			str += pair.second;
-			break;
+
+	if (DIDFT_GETTYPE(dwType) == DIDFT_ALL)
+		str += "DIDFT_ALL";
+	else {
+		for (auto &&pair : DIDFTGroup1StringPairs) {
+			if (DIDFT_GETTYPE(dwType) == pair.first) {
+				str += pair.second;
+				break;
+			}
+		}
+
+		for (auto &&pair : DIDFTGroup2StringPairs) {
+			if (DIDFT_GETTYPE(dwType) == pair.first) {
+				if (!str.empty())
+					str += " | ";
+				str += pair.second;
+				break;
+			}
 		}
 	}
 
-	DWORD inst = DIDFT_GETINSTANCE(dwType & DIDFT_INSTANCEMASK);
+	WORD inst = DIDFT_GETINSTANCE(dwType & DIDFT_INSTANCEMASK);
 
 	if (inst > 0 && inst < 0xffff)
 		str += format(" | DIDFT_INSTANCE/DIDFT_COLLECTION({})", inst);
