@@ -498,8 +498,7 @@ static HRESULT WINAPI DirectInputDevice8Escape(
 	if (pesc)
 		LOG_INFO_T(IDInput, "sent  pesc: {}\n", DIEFFESCAPEToString(*pesc));
 
-	HRESULT ret =
-	    RealDirectInputDevice8Vtbl<IDInput>.Escape(lpDirectInputDevice, pesc);
+	HRESULT ret = DIERR_UNSUPPORTED;
 
 	if (pesc)
 		LOG_INFO_T(IDInput, "recvd pesc: {}\n", DIEFFESCAPEToString(*pesc));
