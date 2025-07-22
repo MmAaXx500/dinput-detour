@@ -49,7 +49,7 @@ BOOL WINAPI RoutedCreateProcessW(
     LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation) {
 	LOG_PRE(
 	    "lpApplicationName: {}, lpCommandLine: {}, lpProcessAttributes: {}, "
-	    "lpThreadAttributes: {}, bInheritHandles: {}, dwCreationFlags: {:x}, "
+	    "lpThreadAttributes: {}, bInheritHandles: {}, dwCreationFlags: {:#x}, "
 	    "lpEnvironment: {}, lpCurrentDirectory: {}, lpStartupInfo: {}, "
 	    "lpProcessInformation: {}\n",
 	    static_cast<const void *>(lpApplicationName),
@@ -81,7 +81,7 @@ HRESULT WINAPI RoutedCoCreateInstance(REFIID rclsid, LPUNKNOWN pUnkOuter,
                                       DWORD dwClsContext, REFIID riid,
                                       LPVOID *ppv) {
 	LOG_PRE(
-	    "rclsid: {}, pUnkOuter: {}, dwClsContext: {:x}, riid: {}, ppv: {}\n",
+	    "rclsid: {}, pUnkOuter: {}, dwClsContext: {:#x}, riid: {}, ppv: {}\n",
 	    guid_to_str(rclsid), static_cast<void *>(pUnkOuter), dwClsContext,
 	    guid_to_str(riid), static_cast<void *>(ppv));
 
@@ -96,7 +96,7 @@ HRESULT WINAPI RoutedDirectInput8Create(HINSTANCE hinst, DWORD dwVersion,
                                         REFIID riidltf, LPVOID *ppvOut,
                                         LPUNKNOWN punkOuter) {
 	LOG_PRE(
-	    "hinst: {} dwVersion: {:x}, riidltf: {}, ppvOut: {} punkOuter: {}\n",
+	    "hinst: {} dwVersion: {:#x}, riidltf: {}, ppvOut: {} punkOuter: {}\n",
 	    static_cast<void *>(hinst), dwVersion, guid_to_str(riidltf),
 	    static_cast<void *>(ppvOut), static_cast<void *>(punkOuter));
 

@@ -83,7 +83,8 @@ HRESULT WINAPI DirectInputDevice8GetCapabilities(
 	    lpDirectInputDevice, lpDIDevCaps);
 
 	if (SUCCEEDED(ret) && lpDIDevCaps)
-		LOG_INFO_T(IDInput, "{}\n", DIDEVCAPSToString(*lpDIDevCaps));
+		LOG_INFO_T(IDInput, "lpDIDevCaps: {}\n",
+		           DIDEVCAPSToString(*lpDIDevCaps));
 
 	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
@@ -122,7 +123,7 @@ HRESULT WINAPI DirectInputDevice8EnumObjects(
     LPVOID pvRef, DWORD dwFlags) {
 	LOG_PRE_T(IDInput,
 	          "lpDirectInputDevice: {}, lpCallback: {}, pvRef: {}, "
-	          "dwFlags: {} ({:x})\n",
+	          "dwFlags: {} ({:#x})\n",
 	          static_cast<void *>(lpDirectInputDevice),
 	          reinterpret_cast<void *>(lpCallback), pvRef,
 	          DIDFTToString(dwFlags), dwFlags);
@@ -143,12 +144,10 @@ template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8GetProperty(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     REFGUID rguidProp, LPDIPROPHEADER pdiph) {
-	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
-	          static_cast<void *>(lpDirectInputDevice),
-	          static_cast<const void *>(&rguidProp),
-	          static_cast<void *>(pdiph));
-
-	LOG_INFO_T(IDInput, "rguidProp: {}\n", DIPROPToString(rguidProp));
+	LOG_PRE_T(
+	    IDInput, "lpDirectInputDevice: {}, rguidProp: {} ({}), pdiph: {}\n",
+	    static_cast<void *>(lpDirectInputDevice), DIPROPToString(rguidProp),
+	    static_cast<const void *>(&rguidProp), static_cast<void *>(pdiph));
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetProperty(
 	    lpDirectInputDevice, rguidProp, pdiph);
@@ -165,12 +164,11 @@ template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8SetProperty(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     REFGUID rguidProp, LPCDIPROPHEADER pdiph) {
-	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, rguidProp: {}, pdiph: {}\n",
+	LOG_PRE_T(IDInput,
+	          "lpDirectInputDevice: {}, rguidProp: {} ({}), pdiph: {}\n",
 	          static_cast<void *>(lpDirectInputDevice),
-	          static_cast<const void *>(&rguidProp),
+	          DIPROPToString(rguidProp), static_cast<const void *>(&rguidProp),
 	          static_cast<const void *>(pdiph));
-
-	LOG_INFO_T(IDInput, "rguidProp: {}\n", DIPROPToString(rguidProp));
 
 	LOG_INFO_T(IDInput, "pdiph: {}\n", DIPROPHEADERToString(rguidProp, *pdiph));
 
@@ -232,10 +230,10 @@ HRESULT WINAPI DirectInputDevice8GetDeviceData(
 
 	LOG_PRE_T(IDInput,
 	          "lpDirectInputDevice: {}, cbObjectData: {}, rgdod: {}, "
-	          "pdwInOut: {}, dwFlags: {}\n",
+	          "pdwInOut: {}, dwFlags: {} ({:#x})\n",
 	          static_cast<void *>(lpDirectInputDevice), cbObjectData,
 	          static_cast<const void *>(rgdod), static_cast<void *>(pdwInOut),
-	          DIGDDToString(dwFlags));
+	          DIGDDToString(dwFlags), dwFlags);
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetDeviceData(
 	    lpDirectInputDevice, cbObjectData, rgdod, pdwInOut, dwFlags);
@@ -360,11 +358,10 @@ HRESULT WINAPI DirectInputDevice8EnumEffects(
     DWORD dwEffType) {
 	LOG_PRE_T(IDInput,
 	          "lpDirectInputDevice: {}, lpCallback: {}, pvRef: {}, "
-	          "dwEffType: {:x}\n",
+	          "dwEffType: {} ({:#x})\n",
 	          static_cast<void *>(lpDirectInputDevice),
-	          reinterpret_cast<void *>(lpCallback), pvRef, dwEffType);
-
-	LOG_INFO_T(IDInput, "dwEffType: {}\n", DIEFTToString(dwEffType));
+	          reinterpret_cast<void *>(lpCallback), pvRef,
+	          DIEFTToString(dwEffType), dwEffType);
 
 	EnumEffectsCallbackData<IDInput> data{
 	    .realCallback = lpCallback,
@@ -384,9 +381,11 @@ HRESULT WINAPI DirectInputDevice8GetObjectInfo(
     typename DITraits<IDInput>::DIDeviceObjectInstance *pdidoi, DWORD dwObj,
     DWORD dwHow) {
 	LOG_PRE_T(IDInput,
-	          "lpDirectInputDevice: {}, pdidoi: {}, dwObj: {:#x}, dwHow: {}\n",
+	          "lpDirectInputDevice: {}, pdidoi: {}, dwObj: {:#x}, dwHow: {} "
+	          "({:#x})\n",
 	          static_cast<void *>(lpDirectInputDevice),
-	          static_cast<void *>(pdidoi), dwObj, DIPHHowToString(dwHow));
+	          static_cast<void *>(pdidoi), dwObj, DIPHHowToString(dwHow),
+	          dwHow);
 
 	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetObjectInfo(
 	    lpDirectInputDevice, pdidoi, dwObj, dwHow);

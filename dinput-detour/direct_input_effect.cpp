@@ -20,11 +20,9 @@ static DWORD GetEffectTypeInfo(REFGUID rguid) {
 
 HRESULT WINAPI RoutedDirectInputEffectGetParameters(
     LPDIRECTINPUTEFFECT lpDiEffect, LPDIEFFECT peff, DWORD dwFlags) {
-	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {}\n",
+	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), static_cast<void *>(peff),
-	        DIEPToString(dwFlags));
-
-	LOG_INFO("dwFlags: {}\n", DIEPToString(dwFlags));
+	        DIEPToString(dwFlags), dwFlags);
 
 	HRESULT ret =
 	    RealDirectInputEffectVtbl.GetParameters(lpDiEffect, peff, dwFlags);
@@ -43,11 +41,9 @@ HRESULT WINAPI RoutedDirectInputEffectGetParameters(
 
 HRESULT WINAPI RoutedDirectInputEffectSetParameters(
     LPDIRECTINPUTEFFECT lpDiEffect, LPCDIEFFECT peff, DWORD dwFlags) {
-	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {:x}\n",
+	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), static_cast<const void *>(peff),
-	        dwFlags);
-
-	LOG_INFO("dwFlags: {}\n", DIEPToString(dwFlags));
+	        DIEPToString(dwFlags), dwFlags);
 
 	GUID effGuid;
 	RealDirectInputEffectVtbl.GetEffectGuid(lpDiEffect, &effGuid);
@@ -64,9 +60,9 @@ HRESULT WINAPI RoutedDirectInputEffectSetParameters(
 
 HRESULT WINAPI RoutedDirectInputEffectStart(LPDIRECTINPUTEFFECT lpDiEffect,
                                             DWORD dwIterations, DWORD dwFlags) {
-	LOG_PRE("lpDiEffect: {}, dwIterations: {}, dwFlags: {}\n",
+	LOG_PRE("lpDiEffect: {}, dwIterations: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), dwIterations,
-	        DIESToString(dwFlags));
+	        DIESToString(dwFlags), dwFlags);
 
 	HRESULT ret =
 	    RealDirectInputEffectVtbl.Start(lpDiEffect, dwIterations, dwFlags);
@@ -92,7 +88,8 @@ HRESULT WINAPI RoutedDirectInputEffectGetEffectStatus(
 	    RealDirectInputEffectVtbl.GetEffectStatus(lpDiEffect, pdwFlags);
 
 	if (SUCCEEDED(ret) && pdwFlags)
-		LOG_INFO("pdwFlags: {}\n", DIEGESToString(*pdwFlags));
+		LOG_INFO("pdwFlags: {} ({:#x})\n", DIEGESToString(*pdwFlags),
+		         *pdwFlags);
 
 	LOG_POST("ret: {}\n", ret);
 	return ret;

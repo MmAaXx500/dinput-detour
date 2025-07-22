@@ -40,7 +40,7 @@ BOOL WINAPI EnumDevicesCallback(
 
 	BOOL ret = DIENUM_CONTINUE;
 
-	LOG_PRE_T(IDInput, "lpdi: {}, pvref: {}\n",
+	LOG_PRE_T(IDInput, "lpddi: {}, pvref: {}\n",
 	          static_cast<const void *>(lpddi), pvref);
 
 	LOG_INFO_T(IDInput, "lpddi: {}\n",

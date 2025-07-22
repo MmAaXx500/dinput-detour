@@ -542,10 +542,12 @@ string DIDEVCAPSToString(const DIDEVCAPS &lpDIDevCaps) {
 	string str = format("lpDIDevCaps dwSize: {}", lpDIDevCaps.dwSize);
 
 	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwFlags))
-		str += format(", dwFlags: {}({:#x})", DIDCToString(lpDIDevCaps.dwFlags),
-		              lpDIDevCaps.dwFlags);
+		str += format(", dwFlags: {} ({:#x})",
+		              DIDCToString(lpDIDevCaps.dwFlags), lpDIDevCaps.dwFlags);
 	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwDevType))
-		str += format(", dwDevType: {:#x}", lpDIDevCaps.dwDevType);
+		str += format(", dwDevType: {} ({:#x})",
+		              DI8DEVTYPEOrCLASSToString(lpDIDevCaps.dwDevType),
+		              lpDIDevCaps.dwDevType);
 	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwAxes))
 		str += format(", dwAxes: {}", lpDIDevCaps.dwAxes);
 	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwButtons))
