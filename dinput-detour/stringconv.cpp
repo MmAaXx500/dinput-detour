@@ -183,15 +183,18 @@ constexpr static array<pair<DWORD, string_view>, 9> DIDFTFlagStringPairs = {{
     {DIDFT_OPTIONAL, "DIDFT_OPTIONAL"},
 }};
 
-constexpr static array<pair<DWORD, string_view>, 8> DIDOIStringPairs = {{
+constexpr static array<pair<DWORD, string_view>, 4> DIDOIStringPairs = {{
     {DIDOI_FFACTUATOR, "DIDOI_FFACTUATOR"},
     {DIDOI_FFEFFECTTRIGGER, "DIDOI_FFEFFECTTRIGGER"},
     {DIDOI_POLLED, "DIDOI_POLLED"},
+    {DIDOI_GUIDISUSAGE, "DIDOI_GUIDISUSAGE"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 4> DIDOIAspectStringPairs = {{
     {DIDOI_ASPECTPOSITION, "DIDOI_ASPECTPOSITION"},
     {DIDOI_ASPECTVELOCITY, "DIDOI_ASPECTVELOCITY"},
     {DIDOI_ASPECTACCEL, "DIDOI_ASPECTACCEL"},
     {DIDOI_ASPECTFORCE, "DIDOI_ASPECTFORCE"},
-    {DIDOI_GUIDISUSAGE, "DIDOI_GUIDISUSAGE"},
 }};
 
 constexpr static array<pair<DWORD, string_view>, 6> DISFFCStringPairs = {{
@@ -468,8 +471,16 @@ string DIDFTToString(DWORD dwType) {
 
 string DIDOIToString(DWORD dwFlags) {
 	string str;
+	for (auto &&pair : DIDOIAspectStringPairs) {
+		if ((dwFlags & DIDOI_ASPECTMASK) == pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
 	for (auto &&pair : DIDOIStringPairs) {
-		if ((dwFlags & pair.first) == pair.first) {
+		if (dwFlags & pair.first) {
 			if (!str.empty())
 				str += " | ";
 			str += pair.second;
