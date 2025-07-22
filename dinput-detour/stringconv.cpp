@@ -200,6 +200,36 @@ constexpr static array<pair<DWORD, string_view>, 6> DISFFCStringPairs = {{
     {DISFFC_SETACTUATORSOFF, "DISFFC_SETACTUATORSOFF"},
 }};
 
+constexpr static array<pair<DWORD, string_view>, 17>
+    DI8DEVTYPEOrCLASSStringPairs = {{
+        {DI8DEVCLASS_ALL, "DI8DEVCLASS_ALL"},
+        {DI8DEVCLASS_DEVICE, "DI8DEVCLASS_DEVICE"},
+        {DI8DEVCLASS_POINTER, "DI8DEVCLASS_POINTER"},
+        {DI8DEVCLASS_KEYBOARD, "DI8DEVCLASS_KEYBOARD"},
+        {DI8DEVCLASS_GAMECTRL, "DI8DEVCLASS_GAMECTRL"},
+        {DI8DEVTYPE_DEVICE, "DI8DEVTYPE_DEVICE"},
+        {DI8DEVTYPE_MOUSE, "DI8DEVTYPE_MOUSE"},
+        {DI8DEVTYPE_KEYBOARD, "DI8DEVTYPE_KEYBOARD"},
+        {DI8DEVTYPE_JOYSTICK, "DI8DEVTYPE_JOYSTICK"},
+        {DI8DEVTYPE_GAMEPAD, "DI8DEVTYPE_GAMEPAD"},
+        {DI8DEVTYPE_DRIVING, "DI8DEVTYPE_DRIVING"},
+        {DI8DEVTYPE_FLIGHT, "DI8DEVTYPE_FLIGHT"},
+        {DI8DEVTYPE_1STPERSON, "DI8DEVTYPE_1STPERSON"},
+        {DI8DEVTYPE_DEVICECTRL, "DI8DEVTYPE_DEVICECTRL"},
+        {DI8DEVTYPE_SCREENPOINTER, "DI8DEVTYPE_SCREENPOINTER"},
+        {DI8DEVTYPE_REMOTE, "DI8DEVTYPE_REMOTE"},
+        {DI8DEVTYPE_SUPPLEMENTAL, "DI8DEVTYPE_SUPPLEMENTAL"},
+    }};
+
+constexpr static array<pair<DWORD, string_view>, 5> DIEDFLStringPairs = {{
+    // DIEDFL_ALLDEVICES handled separately
+    {DIEDFL_ATTACHEDONLY, "DIEDFL_ATTACHEDONLY"},
+    {DIEDFL_FORCEFEEDBACK, "DIEDFL_FORCEFEEDBACK"},
+    {DIEDFL_INCLUDEALIASES, "DIEDFL_INCLUDEALIASES"},
+    {DIEDFL_INCLUDEPHANTOMS, "DIEDFL_INCLUDEPHANTOMS"},
+    {DIEDFL_INCLUDEHIDDEN, "DIEDFL_INCLUDEHIDDEN"},
+}};
+
 string DIEFTToString(DWORD dwEffType) {
 	for (auto &&pair : DIEFTTypeStringPairs) {
 		if (DIEFT_GETTYPE(dwEffType) == pair.first)
@@ -443,6 +473,43 @@ string DISFFCToString(DWORD dwFlags) {
 		return str;
 
 	return format("Unknown DISFFC: {:#x}", dwFlags);
+}
+
+string DI8DEVTYPEOrCLASSToString(DWORD dwDevType) {
+	string str;
+	for (auto &&pair : DI8DEVTYPEOrCLASSStringPairs) {
+		if (GET_DIDEVICE_TYPE(dwDevType) == pair.first) {
+			str += pair.second;
+			break;
+		}
+	}
+
+	// Is it a DI8DEVTYPE_*?
+	if (dwDevType & 0x10) {
+		str += format(" subtype: {:#x}", GET_DIDEVICE_SUBTYPE(dwDevType));
+	}
+
+	return format("Unknown DI8DEVTYPE/DI8DEVCLASS: {:#x}", dwDevType);
+}
+
+string DIEDFLToString(DWORD dwFlags) {
+	string str;
+
+	if (dwFlags == DIEDFL_ALLDEVICES)
+		return "DIEDFL_ALLDEVICES";
+
+	for (auto &&pair : DIEDFLStringPairs) {
+		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	if (!str.empty())
+		return str;
+
+	return format("Unknown DIEDFL: {:#x}", dwFlags);
 }
 
 string DurationToString(DWORD duration) {
@@ -899,6 +966,40 @@ string DIDEVICEOBJECTINSTANCEToString(
 	return str;
 }
 
+template <typename IDInput>
+string DIDEVICEINSTANCEToString(
+    const typename DITraits<IDInput>::DIDeviceInstance &ddi) {
+	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
+
+	string str = format("dwSize: {}", ddi.dwSize);
+	if (ddi.dwSize
+	    >= offsetof(DIDeviceInstance, guidInstance) + sizeof(ddi.guidInstance))
+		str += format(", guidInstance: {}", guid_to_str(ddi.guidInstance));
+	if (ddi.dwSize
+	    >= offsetof(DIDeviceInstance, guidProduct) + sizeof(ddi.guidProduct))
+		str += format(", guidProduct: {}", guid_to_str(ddi.guidProduct));
+	if (ddi.dwSize
+	    >= offsetof(DIDeviceInstance, dwDevType) + sizeof(ddi.dwDevType))
+		str += format(", dwDevType: {} ({:#x})",
+		              DI8DEVTYPEOrCLASSToString(ddi.dwDevType), ddi.dwDevType);
+	if (ddi.dwSize >= offsetof(DIDeviceInstance, tszInstanceName)
+	                      + sizeof(ddi.tszInstanceName))
+		str += format(", tszInstanceName: {}", ToString(ddi.tszInstanceName));
+	if (ddi.dwSize >= offsetof(DIDeviceInstance, tszProductName)
+	                      + sizeof(ddi.tszProductName))
+		str += format(", tszProductName: {}", ToString(ddi.tszProductName));
+	if (ddi.dwSize
+	    >= offsetof(DIDeviceInstance, guidFFDriver) + sizeof(ddi.guidFFDriver))
+		str += format(", guidFFDriver: {}", guid_to_str(ddi.guidFFDriver));
+	if (ddi.dwSize
+	    >= offsetof(DIDeviceInstance, wUsagePage) + sizeof(ddi.wUsagePage))
+		str += format(", wUsagePage: {:#x}", ddi.wUsagePage);
+	if (ddi.dwSize >= offsetof(DIDeviceInstance, wUsage) + sizeof(ddi.wUsage))
+		str += format(", wUsage: {:#x}", ddi.wUsage);
+
+	return str;
+}
+
 string wstring_to_string(const wstring &wstr) {
 	if (wstr.empty())
 		return string();
@@ -917,3 +1018,9 @@ template string DIDEVICEOBJECTINSTANCEToString<IDirectInput8A>(
 
 template string DIDEVICEOBJECTINSTANCEToString<IDirectInput8W>(
     const typename DITraits<IDirectInput8W>::DIDeviceObjectInstance &doi);
+
+template string DIDEVICEINSTANCEToString<IDirectInput8A>(
+    const typename DITraits<IDirectInput8A>::DIDeviceInstance &doi);
+
+template string DIDEVICEINSTANCEToString<IDirectInput8W>(
+    const typename DITraits<IDirectInput8W>::DIDeviceInstance &doi);

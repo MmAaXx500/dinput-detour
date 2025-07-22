@@ -32,6 +32,10 @@ std::string DIDOIToString(DWORD dwFlags);
 
 std::string DISFFCToString(DWORD dwFlags);
 
+std::string DI8DEVTYPEOrCLASSToString(DWORD dwDevType);
+
+std::string DIEDFLToString(DWORD dwFlags);
+
 std::string DurationToString(DWORD duration);
 
 std::string TriggerToString(DWORD trigger);
@@ -72,6 +76,10 @@ std::string DIJOYSTATE2ToString(const DIJOYSTATE2 &js);
 template <typename IDInput>
 std::string DIDEVICEOBJECTINSTANCEToString(
     const typename DITraits<IDInput>::DIDeviceObjectInstance &doi);
+
+template <typename IDInput>
+std::string DIDEVICEINSTANCEToString(
+    const typename DITraits<IDInput>::DIDeviceInstance &ddi);
 
 // strings
 

@@ -14,6 +14,7 @@ template <> struct DITraits<IDirectInput8A> {
 	using DIDeviceVtbl = IDirectInputDevice8AVtbl;
 	using DIEffectInfo = DIEFFECTINFOA;
 	using DIEnumDeviceObjectCallback = LPDIENUMDEVICEOBJECTSCALLBACKA;
+	using DIEnumDevicesCallback = LPDIENUMDEVICESCALLBACKA;
 	using DIEnumEffectsCallback = LPDIENUMEFFECTSCALLBACKA;
 };
 
@@ -27,6 +28,7 @@ template <> struct DITraits<IDirectInput8W> {
 	using DIDeviceVtbl = IDirectInputDevice8WVtbl;
 	using DIEffectInfo = DIEFFECTINFOW;
 	using DIEnumDeviceObjectCallback = LPDIENUMDEVICEOBJECTSCALLBACKW;
+	using DIEnumDevicesCallback = LPDIENUMDEVICESCALLBACKW;
 	using DIEnumEffectsCallback = LPDIENUMEFFECTSCALLBACKW;
 };
 
