@@ -191,6 +191,15 @@ constexpr static array<pair<DWORD, string_view>, 8> DIDOIStringPairs = {{
     {DIDOI_GUIDISUSAGE, "DIDOI_GUIDISUSAGE"},
 }};
 
+constexpr static array<pair<DWORD, string_view>, 6> DISFFCStringPairs = {{
+    {DISFFC_RESET, "DISFFC_RESET"},
+    {DISFFC_STOPALL, "DISFFC_STOPALL"},
+    {DISFFC_PAUSE, "DISFFC_PAUSE"},
+    {DISFFC_CONTINUE, "DISFFC_CONTINUE"},
+    {DISFFC_SETACTUATORSON, "DISFFC_SETACTUATORSON"},
+    {DISFFC_SETACTUATORSOFF, "DISFFC_SETACTUATORSOFF"},
+}};
+
 string DIEFTToString(DWORD dwEffType) {
 	for (auto &&pair : DIEFTTypeStringPairs) {
 		if (DIEFT_GETTYPE(dwEffType) == pair.first)
@@ -418,6 +427,22 @@ string DIDOIToString(DWORD dwFlags) {
 		return str;
 
 	return format("Unknown DIDOI: {:#x}", dwFlags);
+}
+
+string DISFFCToString(DWORD dwFlags) {
+	string str;
+	for (auto &&pair : DISFFCStringPairs) {
+		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	if (!str.empty())
+		return str;
+
+	return format("Unknown DISFFC: {:#x}", dwFlags);
 }
 
 string DurationToString(DWORD duration) {

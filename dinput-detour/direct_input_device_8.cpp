@@ -472,6 +472,43 @@ HRESULT WINAPI DirectInputDevice8GetForceFeedbackState(
 	return ret;
 }
 
+template <typename IDInput>
+HRESULT WINAPI DirectInputDevice8SendForceFeedbackCommand(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, DWORD dwFlags) {
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, dwFlags: {} ({:#x})\n",
+	          static_cast<void *>(lpDirectInputDevice), DISFFCToString(dwFlags),
+	          dwFlags);
+
+	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.SendForceFeedbackCommand(
+	    lpDirectInputDevice, dwFlags);
+
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
+
+	return ret;
+}
+
+template <typename IDInput>
+HRESULT WINAPI DirectInputDevice8Escape(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
+    LPDIEFFESCAPE pesc) {
+	LOG_PRE_T(IDInput, "lpDirectInputDevice: {}, pesc: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<void *>(pesc));
+
+	if (pesc)
+		LOG_INFO_T(IDInput, "sent  pesc: {}\n", DIEFFESCAPEToString(*pesc));
+
+	HRESULT ret =
+	    RealDirectInputDevice8Vtbl<IDInput>.Escape(lpDirectInputDevice, pesc);
+
+	if (pesc)
+		LOG_INFO_T(IDInput, "recvd pesc: {}\n", DIEFFESCAPEToString(*pesc));
+
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
+
+	return ret;
+}
+
 /*
  * Collect device information for a DirectInput device.
  * This must be called after IDirectInputDevice8 is hooked
@@ -558,6 +595,11 @@ LONG DirectInputDevice8DetourAttach(
 			DetourAttach(
 			    &RealDirectInputDevice8Vtbl<IDInput>.GetForceFeedbackState,
 			    DirectInputDevice8GetForceFeedbackState<IDInput>);
+			DetourAttach(
+			    &RealDirectInputDevice8Vtbl<IDInput>.SendForceFeedbackCommand,
+			    DirectInputDevice8SendForceFeedbackCommand<IDInput>);
+			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.Escape,
+			             DirectInputDevice8Escape<IDInput>);
 		});
 	}
 
@@ -603,6 +645,11 @@ LONG DirectInputDevice8DetourDetach(
 			DetourDetach(
 			    &RealDirectInputDevice8Vtbl<IDInput>.GetForceFeedbackState,
 			    DirectInputDevice8GetForceFeedbackState<IDInput>);
+			DetourDetach(
+			    &RealDirectInputDevice8Vtbl<IDInput>.SendForceFeedbackCommand,
+			    DirectInputDevice8SendForceFeedbackCommand<IDInput>);
+			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.Escape,
+			             DirectInputDevice8Escape<IDInput>);
 		});
 
 		RealDirectInputDevice8Vtbl<IDInput> = {};

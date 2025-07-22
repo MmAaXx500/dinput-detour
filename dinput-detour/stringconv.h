@@ -30,6 +30,8 @@ std::string DIDFTToString(DWORD dwType);
 
 std::string DIDOIToString(DWORD dwFlags);
 
+std::string DISFFCToString(DWORD dwFlags);
+
 std::string DurationToString(DWORD duration);
 
 std::string TriggerToString(DWORD trigger);
