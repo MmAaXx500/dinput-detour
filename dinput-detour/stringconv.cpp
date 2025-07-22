@@ -230,6 +230,9 @@ constexpr static array<pair<DWORD, string_view>, 5> DIEDFLStringPairs = {{
     {DIEDFL_INCLUDEHIDDEN, "DIEDFL_INCLUDEHIDDEN"},
 }};
 
+// Calculate the minimum size required to contain the specified member
+#define DI_MIN_SIZE(type, member) offsetof(type, member) + sizeof(type::member)
+
 string DIEFTToString(DWORD dwEffType) {
 	for (auto &&pair : DIEFTTypeStringPairs) {
 		if (DIEFT_GETTYPE(dwEffType) == pair.first)
@@ -538,39 +541,29 @@ string DIPROPToString(REFGUID rguidProp) {
 string DIDEVCAPSToString(const DIDEVCAPS &lpDIDevCaps) {
 	string str = format("lpDIDevCaps dwSize: {}", lpDIDevCaps.dwSize);
 
-	if (lpDIDevCaps.dwSize
-	    >= offsetof(DIDEVCAPS, dwFlags) + sizeof(lpDIDevCaps.dwFlags))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwFlags))
 		str += format(", dwFlags: {}({:#x})", DIDCToString(lpDIDevCaps.dwFlags),
 		              lpDIDevCaps.dwFlags);
-	if (lpDIDevCaps.dwSize
-	    >= offsetof(DIDEVCAPS, dwDevType) + sizeof(lpDIDevCaps.dwDevType))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwDevType))
 		str += format(", dwDevType: {:#x}", lpDIDevCaps.dwDevType);
-	if (lpDIDevCaps.dwSize
-	    >= offsetof(DIDEVCAPS, dwAxes) + sizeof(lpDIDevCaps.dwAxes))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwAxes))
 		str += format(", dwAxes: {}", lpDIDevCaps.dwAxes);
-	if (lpDIDevCaps.dwSize
-	    >= offsetof(DIDEVCAPS, dwButtons) + sizeof(lpDIDevCaps.dwButtons))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwButtons))
 		str += format(", dwButtons: {}", lpDIDevCaps.dwButtons);
-	if (lpDIDevCaps.dwSize
-	    >= offsetof(DIDEVCAPS, dwPOVs) + sizeof(lpDIDevCaps.dwPOVs))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwPOVs))
 		str += format(", dwPOVs: {}", lpDIDevCaps.dwPOVs);
-	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFFSamplePeriod)
-	                              + sizeof(lpDIDevCaps.dwFFSamplePeriod))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwFFSamplePeriod))
 		str += format(", dwFFSamplePeriod: {}", lpDIDevCaps.dwFFSamplePeriod);
-	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFFMinTimeResolution)
-	                              + sizeof(lpDIDevCaps.dwFFMinTimeResolution))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwFFMinTimeResolution))
 		str += format(", dwFFMinTimeResolution: {}",
 		              lpDIDevCaps.dwFFMinTimeResolution);
-	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFirmwareRevision)
-	                              + sizeof(lpDIDevCaps.dwFirmwareRevision))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwFirmwareRevision))
 		str +=
 		    format(", dwFirmwareRevision: {}", lpDIDevCaps.dwFirmwareRevision);
-	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwHardwareRevision)
-	                              + sizeof(lpDIDevCaps.dwHardwareRevision))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwHardwareRevision))
 		str +=
 		    format(", dwHardwareRevision: {}", lpDIDevCaps.dwHardwareRevision);
-	if (lpDIDevCaps.dwSize >= offsetof(DIDEVCAPS, dwFFDriverVersion)
-	                              + sizeof(lpDIDevCaps.dwFFDriverVersion))
+	if (lpDIDevCaps.dwSize >= DI_MIN_SIZE(DIDEVCAPS, dwFFDriverVersion))
 		str += format(", dwFFDriverVersion: {}", lpDIDevCaps.dwFFDriverVersion);
 
 	return str;
@@ -892,8 +885,7 @@ string DIDEVICEOBJECTINSTANCEToString(
 
 	string str = format("dwSize: {}", doi.dwSize);
 
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, guidType) + sizeof(doi.guidType)) {
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, guidType)) {
 		str += format(", guidType: ");
 
 		if (doi.guidType == GUID_XAxis)
@@ -921,46 +913,33 @@ string DIDEVICEOBJECTINSTANCEToString(
 		else
 			str += format("Unknown {}", guid_to_str(doi.guidType));
 	}
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, dwOfs) + sizeof(doi.dwOfs))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, dwOfs))
 		str += format(", dwOfs: {}", doi.dwOfs);
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, dwType) + sizeof(doi.dwType))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, dwType))
 		str += format(", dwType: {} ({:#x})", DIDFTToString(doi.dwType),
 		              doi.dwType);
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, dwFlags) + sizeof(doi.dwFlags))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, dwFlags))
 		str += format(", dwFlags: {} ({:#x})", DIDOIToString(doi.dwFlags),
 		              doi.dwFlags);
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, tszName) + sizeof(doi.tszName))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, tszName))
 		str += format(", tszName: {}", ToString(doi.tszName));
-	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, dwFFMaxForce)
-	                      + sizeof(doi.dwFFMaxForce))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, dwFFMaxForce))
 		str += format(", dwFFMaxForce: {}", doi.dwFFMaxForce);
-	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, dwFFForceResolution)
-	                      + sizeof(doi.dwFFForceResolution))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, dwFFForceResolution))
 		str += format(", dwFFForceResolution: {}", doi.dwFFForceResolution);
-	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, wCollectionNumber)
-	                      + sizeof(doi.wCollectionNumber))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, wCollectionNumber))
 		str += format(", wCollectionNumber: {}", doi.wCollectionNumber);
-	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, wDesignatorIndex)
-	                      + sizeof(doi.wDesignatorIndex))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, wDesignatorIndex))
 		str += format(", wDesignatorIndex: {}", doi.wDesignatorIndex);
-	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, wUsagePage)
-	                      + sizeof(doi.wUsagePage))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, wUsagePage))
 		str += format(", wUsagePage: {}", doi.wUsagePage);
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, wUsage) + sizeof(doi.wUsage))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, wUsage))
 		str += format(", wUsage: {}", doi.wUsage);
-	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, dwDimension)
-	                      + sizeof(doi.dwDimension))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, dwDimension))
 		str += format(", dwDimension: {}", doi.dwDimension);
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, wExponent) + sizeof(doi.wExponent))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, wExponent))
 		str += format(", wExponent: {}", doi.wExponent);
-	if (doi.dwSize
-	    >= offsetof(DIDeviceObjectInstance, wReportId) + sizeof(doi.wReportId))
+	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, wReportId))
 		str += format(", wReportId: {}", doi.wReportId);
 
 	return str;
@@ -972,29 +951,22 @@ string DIDEVICEINSTANCEToString(
 	using DIDeviceInstance = DITraits<IDInput>::DIDeviceInstance;
 
 	string str = format("dwSize: {}", ddi.dwSize);
-	if (ddi.dwSize
-	    >= offsetof(DIDeviceInstance, guidInstance) + sizeof(ddi.guidInstance))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, guidInstance))
 		str += format(", guidInstance: {}", guid_to_str(ddi.guidInstance));
-	if (ddi.dwSize
-	    >= offsetof(DIDeviceInstance, guidProduct) + sizeof(ddi.guidProduct))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, guidProduct))
 		str += format(", guidProduct: {}", guid_to_str(ddi.guidProduct));
-	if (ddi.dwSize
-	    >= offsetof(DIDeviceInstance, dwDevType) + sizeof(ddi.dwDevType))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, dwDevType))
 		str += format(", dwDevType: {} ({:#x})",
 		              DI8DEVTYPEOrCLASSToString(ddi.dwDevType), ddi.dwDevType);
-	if (ddi.dwSize >= offsetof(DIDeviceInstance, tszInstanceName)
-	                      + sizeof(ddi.tszInstanceName))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, tszInstanceName))
 		str += format(", tszInstanceName: {}", ToString(ddi.tszInstanceName));
-	if (ddi.dwSize >= offsetof(DIDeviceInstance, tszProductName)
-	                      + sizeof(ddi.tszProductName))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, tszProductName))
 		str += format(", tszProductName: {}", ToString(ddi.tszProductName));
-	if (ddi.dwSize
-	    >= offsetof(DIDeviceInstance, guidFFDriver) + sizeof(ddi.guidFFDriver))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, guidFFDriver))
 		str += format(", guidFFDriver: {}", guid_to_str(ddi.guidFFDriver));
-	if (ddi.dwSize
-	    >= offsetof(DIDeviceInstance, wUsagePage) + sizeof(ddi.wUsagePage))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, wUsagePage))
 		str += format(", wUsagePage: {:#x}", ddi.wUsagePage);
-	if (ddi.dwSize >= offsetof(DIDeviceInstance, wUsage) + sizeof(ddi.wUsage))
+	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, wUsage))
 		str += format(", wUsage: {:#x}", ddi.wUsage);
 
 	return str;
