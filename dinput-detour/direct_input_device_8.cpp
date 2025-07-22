@@ -33,6 +33,11 @@ template <typename IDInput> struct EnumEffectsCallbackData {
 	PVOID realData;
 };
 
+template <typename IDInput> struct EnumDeviceObjectsCallbackData {
+	DITraits<IDInput>::DIEnumDeviceObjectCallback realCallback;
+	PVOID realData;
+};
+
 template <typename IDInput>
 HRESULT DirectInputDevice8CreateEffect(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice, REFGUID rguid,
@@ -79,6 +84,56 @@ HRESULT WINAPI DirectInputDevice8GetCapabilities(
 
 	if (SUCCEEDED(ret) && lpDIDevCaps)
 		LOG_INFO_T(IDInput, "{}\n", DIDEVCAPSToString(*lpDIDevCaps));
+
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
+	return ret;
+}
+
+template <typename IDInput>
+BOOL WINAPI EnumObjectsCallback(
+    const typename DITraits<IDInput>::DIDeviceObjectInstance *lpddoi,
+    LPVOID pvRef) {
+
+	LOG_PRE_T(IDInput, "lpddoi: {}, pvRef: {}\n",
+	          static_cast<const void *>(lpddoi), pvRef);
+
+	LOG_INFO_T(IDInput, "lpddoi: {}\n",
+	           DIDEVICEOBJECTINSTANCEToString<IDInput>(*lpddoi));
+
+	auto data =
+	    reinterpret_cast<EnumDeviceObjectsCallbackData<IDInput> *>(pvRef);
+
+	if (data == nullptr || data->realCallback == nullptr) {
+		LOG_POST_T(IDInput, "ret: DIENUM_CONTINUE\n");
+		return DIENUM_CONTINUE;
+	}
+
+	BOOL ret = data->realCallback(lpddoi, data->realData);
+
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
+
+	return ret;
+}
+
+template <typename IDInput>
+HRESULT WINAPI DirectInputDevice8EnumObjects(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
+    typename DITraits<IDInput>::DIEnumDeviceObjectCallback lpCallback,
+    LPVOID pvRef, DWORD dwFlags) {
+	LOG_PRE_T(IDInput,
+	          "lpDirectInputDevice: {}, lpCallback: {}, pvRef: {}, "
+	          "dwFlags: {} ({:x})\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          reinterpret_cast<void *>(lpCallback), pvRef,
+	          DIDFTToString(dwFlags), dwFlags);
+
+	EnumDeviceObjectsCallbackData<IDInput> data{
+	    .realCallback = lpCallback,
+	    .realData = pvRef,
+	};
+
+	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.EnumObjects(
+	    lpDirectInputDevice, EnumObjectsCallback<IDInput>, &data, dwFlags);
 
 	LOG_POST_T(IDInput, "ret: {}\n", ret);
 	return ret;
@@ -324,6 +379,28 @@ HRESULT WINAPI DirectInputDevice8EnumEffects(
 }
 
 template <typename IDInput>
+HRESULT WINAPI DirectInputDevice8GetObjectInfo(
+    typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
+    typename DITraits<IDInput>::DIDeviceObjectInstance *pdidoi, DWORD dwObj,
+    DWORD dwHow) {
+	LOG_PRE_T(IDInput,
+	          "lpDirectInputDevice: {}, pdidoi: {}, dwObj: {:#x}, dwHow: {}\n",
+	          static_cast<void *>(lpDirectInputDevice),
+	          static_cast<void *>(pdidoi), dwObj, DIPHHowToString(dwHow));
+
+	HRESULT ret = RealDirectInputDevice8Vtbl<IDInput>.GetObjectInfo(
+	    lpDirectInputDevice, pdidoi, dwObj, dwHow);
+
+	if (SUCCEEDED(ret))
+		LOG_INFO_T(IDInput, "pdidoi: {}\n",
+		           DIDEVICEOBJECTINSTANCEToString<IDInput>(*pdidoi));
+
+	LOG_POST_T(IDInput, "ret: {}\n", ret);
+
+	return ret;
+}
+
+template <typename IDInput>
 HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
     typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
     typename DITraits<IDInput>::DIDeviceInstance *pdidi) {
@@ -425,6 +502,9 @@ CollectDeviceInfo(typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
 	RealDirectInputDevice8Vtbl<IDInput>.EnumEffects(
 	    lpDirectInputDevice, EnumEffectsCallback<IDInput>, nullptr, DIEFT_ALL);
 
+	RealDirectInputDevice8Vtbl<IDInput>.EnumObjects(
+	    lpDirectInputDevice, EnumObjectsCallback<IDInput>, nullptr, DIDFT_ALL);
+
 	LOG_POST_T(IDInput, "Collection ended for: {}\n", guid_to_str(rguid));
 }
 
@@ -454,6 +534,8 @@ LONG DirectInputDevice8DetourAttach(
 			             DirectInputDevice8CreateEffect<IDInput>);
 			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.GetCapabilities,
 			             DirectInputDevice8GetCapabilities<IDInput>);
+			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.EnumObjects,
+			             DirectInputDevice8EnumObjects<IDInput>);
 			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.GetProperty,
 			             DirectInputDevice8GetProperty<IDInput>);
 			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.SetProperty,
@@ -469,6 +551,8 @@ LONG DirectInputDevice8DetourAttach(
 			    DirectInputDevice8SetEventNotification<IDInput>);
 			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.EnumEffects,
 			             DirectInputDevice8EnumEffects<IDInput>);
+			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.GetObjectInfo,
+			             DirectInputDevice8GetObjectInfo<IDInput>);
 			DetourAttach(&RealDirectInputDevice8Vtbl<IDInput>.GetDeviceInfo,
 			             DirectInputDevice8GetDeviceInfo<IDInput>);
 			DetourAttach(
@@ -495,6 +579,8 @@ LONG DirectInputDevice8DetourDetach(
 			             DirectInputDevice8CreateEffect<IDInput>);
 			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.GetCapabilities,
 			             DirectInputDevice8GetCapabilities<IDInput>);
+			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.EnumObjects,
+			             DirectInputDevice8EnumObjects<IDInput>);
 			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.GetProperty,
 			             DirectInputDevice8GetProperty<IDInput>);
 			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.SetProperty,
@@ -510,6 +596,8 @@ LONG DirectInputDevice8DetourDetach(
 			    DirectInputDevice8SetEventNotification<IDInput>);
 			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.EnumEffects,
 			             DirectInputDevice8EnumEffects<IDInput>);
+			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.GetObjectInfo,
+			             DirectInputDevice8GetObjectInfo<IDInput>);
 			DetourDetach(&RealDirectInputDevice8Vtbl<IDInput>.GetDeviceInfo,
 			             DirectInputDevice8GetDeviceInfo<IDInput>);
 			DetourDetach(

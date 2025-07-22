@@ -158,6 +158,39 @@ constexpr static array<pair<DWORD, string_view>, 13> DIJOFSStringPairs = {{
     // Buttons handled separately
 }};
 
+constexpr static array<pair<DWORD, string_view>, 10> DIDFTTypeStringPairs = {{
+    {DIDFT_ALL, "DIDFT_ALL"},
+    {DIDFT_AXIS, "DIDFT_AXIS"}, // REL + ABS
+    {DIDFT_RELAXIS, "DIDFT_RELAXIS"},
+    {DIDFT_ABSAXIS, "DIDFT_ABSAXIS"},
+    {DIDFT_BUTTON, "DIDFT_BUTTON"}, // PSH + TGL
+    {DIDFT_PSHBUTTON, "DIDFT_PSHBUTTON"},
+    {DIDFT_TGLBUTTON, "DIDFT_TGLBUTTON"},
+    {DIDFT_POV, "DIDFT_POV"},
+    {DIDFT_COLLECTION, "DIDFT_COLLECTION"},
+    {DIDFT_NODATA, "DIDFT_NODATA"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 6> DIDFTFlagStringPairs = {{
+    {DIDFT_FFACTUATOR, "DIDFT_FFACTUATOR"},
+    {DIDFT_FFEFFECTTRIGGER, "DIDFT_FFEFFECTTRIGGER"},
+    {DIDFT_OUTPUT, "DIDFT_OUTPUT"},
+    {DIDFT_VENDORDEFINED, "DIDFT_VENDORDEFINED"},
+    {DIDFT_ALIAS, "DIDFT_ALIAS"},
+    {DIDFT_OPTIONAL, "DIDFT_OPTIONAL"},
+}};
+
+constexpr static array<pair<DWORD, string_view>, 8> DIDOIStringPairs = {{
+    {DIDOI_FFACTUATOR, "DIDOI_FFACTUATOR"},
+    {DIDOI_FFEFFECTTRIGGER, "DIDOI_FFEFFECTTRIGGER"},
+    {DIDOI_POLLED, "DIDOI_POLLED"},
+    {DIDOI_ASPECTPOSITION, "DIDOI_ASPECTPOSITION"},
+    {DIDOI_ASPECTVELOCITY, "DIDOI_ASPECTVELOCITY"},
+    {DIDOI_ASPECTACCEL, "DIDOI_ASPECTACCEL"},
+    {DIDOI_ASPECTFORCE, "DIDOI_ASPECTFORCE"},
+    {DIDOI_GUIDISUSAGE, "DIDOI_GUIDISUSAGE"},
+}};
+
 string DIEFTToString(DWORD dwEffType) {
 	for (auto &&pair : DIEFTTypeStringPairs) {
 		if (DIEFT_GETTYPE(dwEffType) == pair.first)
@@ -339,6 +372,52 @@ string DIJOFSToString(DWORD dwOfs, const DIDATAFORMAT &lpdf) {
 	}
 
 	return format("Unknown DIJOFS: {:#x}", dwOfs);
+}
+
+string DIDFTToString(DWORD dwType) {
+	string str;
+	for (auto &&pair : DIDFTTypeStringPairs) {
+		if (DIDFT_GETTYPE(dwType) == pair.first) {
+			str += pair.second;
+			break;
+		}
+	}
+
+	DWORD inst = DIDFT_GETINSTANCE(dwType & DIDFT_INSTANCEMASK);
+
+	if (inst > 0 && inst < 0xffff)
+		str += format(" | DIDFT_INSTANCE/DIDFT_COLLECTION({})", inst);
+	else if (inst == 0xffff)
+		str += " | DIDFT_ANYINSTANCE/DIDFT_NOCOLLECTION";
+
+	for (auto &&pair : DIDFTFlagStringPairs) {
+		if (dwType & pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	if (str.empty())
+		return format("Unknown DIDFT: {:#x}", dwType);
+
+	return str;
+}
+
+string DIDOIToString(DWORD dwFlags) {
+	string str;
+	for (auto &&pair : DIDOIStringPairs) {
+		if ((dwFlags & pair.first) == pair.first) {
+			if (!str.empty())
+				str += " | ";
+			str += pair.second;
+		}
+	}
+
+	if (!str.empty())
+		return str;
+
+	return format("Unknown DIDOI: {:#x}", dwFlags);
 }
 
 string DurationToString(DWORD duration) {
@@ -695,6 +774,87 @@ string DIJOYSTATE2ToString(const DIJOYSTATE2 &js) {
 	return str;
 }
 
+template <typename IDInput>
+string DIDEVICEOBJECTINSTANCEToString(
+    const typename DITraits<IDInput>::DIDeviceObjectInstance &doi) {
+	using DIDeviceObjectInstance = DITraits<IDInput>::DIDeviceObjectInstance;
+
+	string str = format("dwSize: {}", doi.dwSize);
+
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, guidType) + sizeof(doi.guidType)) {
+		str += format(", guidType: ");
+
+		if (doi.guidType == GUID_XAxis)
+			str += "GUID_XAxis";
+		else if (doi.guidType == GUID_YAxis)
+			str += "GUID_YAxis";
+		else if (doi.guidType == GUID_ZAxis)
+			str += "GUID_ZAxis";
+		else if (doi.guidType == GUID_RxAxis)
+			str += "GUID_RxAxis";
+		else if (doi.guidType == GUID_RyAxis)
+			str += "GUID_RyAxis";
+		else if (doi.guidType == GUID_RzAxis)
+			str += "GUID_RzAxis";
+		else if (doi.guidType == GUID_Slider)
+			str += "GUID_Slider";
+		else if (doi.guidType == GUID_Button)
+			str += "GUID_Button";
+		else if (doi.guidType == GUID_Key)
+			str += "GUID_Key";
+		else if (doi.guidType == GUID_POV)
+			str += "GUID_POV";
+		else if (doi.guidType == GUID_Unknown)
+			str += "GUID_Unknown";
+		else
+			str += format("Unknown {}", guid_to_str(doi.guidType));
+	}
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, dwOfs) + sizeof(doi.dwOfs))
+		str += format(", dwOfs: {}", doi.dwOfs);
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, dwType) + sizeof(doi.dwType))
+		str += format(", dwType: {} ({:#x})", DIDFTToString(doi.dwType),
+		              doi.dwType);
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, dwFlags) + sizeof(doi.dwFlags))
+		str += format(", dwFlags: {} ({:#x})", DIDOIToString(doi.dwFlags),
+		              doi.dwFlags);
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, tszName) + sizeof(doi.tszName))
+		str += format(", tszName: {}", ToString(doi.tszName));
+	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, dwFFMaxForce)
+	                      + sizeof(doi.dwFFMaxForce))
+		str += format(", dwFFMaxForce: {}", doi.dwFFMaxForce);
+	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, dwFFForceResolution)
+	                      + sizeof(doi.dwFFForceResolution))
+		str += format(", dwFFForceResolution: {}", doi.dwFFForceResolution);
+	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, wCollectionNumber)
+	                      + sizeof(doi.wCollectionNumber))
+		str += format(", wCollectionNumber: {}", doi.wCollectionNumber);
+	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, wDesignatorIndex)
+	                      + sizeof(doi.wDesignatorIndex))
+		str += format(", wDesignatorIndex: {}", doi.wDesignatorIndex);
+	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, wUsagePage)
+	                      + sizeof(doi.wUsagePage))
+		str += format(", wUsagePage: {}", doi.wUsagePage);
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, wUsage) + sizeof(doi.wUsage))
+		str += format(", wUsage: {}", doi.wUsage);
+	if (doi.dwSize >= offsetof(DIDeviceObjectInstance, dwDimension)
+	                      + sizeof(doi.dwDimension))
+		str += format(", dwDimension: {}", doi.dwDimension);
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, wExponent) + sizeof(doi.wExponent))
+		str += format(", wExponent: {}", doi.wExponent);
+	if (doi.dwSize
+	    >= offsetof(DIDeviceObjectInstance, wReportId) + sizeof(doi.wReportId))
+		str += format(", wReportId: {}", doi.wReportId);
+
+	return str;
+}
+
 string wstring_to_string(const wstring &wstr) {
 	if (wstr.empty())
 		return string();
@@ -707,3 +867,9 @@ string wstring_to_string(const wstring &wstr) {
 	                    size_needed, nullptr, nullptr);
 	return ret;
 }
+
+template string DIDEVICEOBJECTINSTANCEToString<IDirectInput8A>(
+    const typename DITraits<IDirectInput8A>::DIDeviceObjectInstance &doi);
+
+template string DIDEVICEOBJECTINSTANCEToString<IDirectInput8W>(
+    const typename DITraits<IDirectInput8W>::DIDeviceObjectInstance &doi);

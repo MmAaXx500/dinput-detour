@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <dinput.h>
+#include "direct_input_8.h"
 
 // DWORDs
 
@@ -25,6 +25,10 @@ std::string DIEGESToString(DWORD dwFlags);
 std::string DIGDDToString(DWORD dwFlags);
 
 std::string DIJOFSToString(DWORD dwOfs, const DIDATAFORMAT &lpdf);
+
+std::string DIDFTToString(DWORD dwType);
+
+std::string DIDOIToString(DWORD dwFlags);
 
 std::string DurationToString(DWORD duration);
 
@@ -62,6 +66,10 @@ std::string DIDEVICEOBJECTDATAToString(const DIDEVICEOBJECTDATA &rgdod,
 std::string DIJOYSTATEToString(const DIJOYSTATE &js);
 
 std::string DIJOYSTATE2ToString(const DIJOYSTATE2 &js);
+
+template <typename IDInput>
+std::string DIDEVICEOBJECTINSTANCEToString(
+    const typename DITraits<IDInput>::DIDeviceObjectInstance &doi);
 
 // strings
 
