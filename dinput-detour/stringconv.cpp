@@ -320,21 +320,24 @@ string DIEFFToString(DWORD dwFlags) {
 	string str;
 	for (auto &&pair : DIEFFTriggerStringPairs) {
 		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
 			str += pair.second;
-			break;
 		}
 	}
-
-	str += " | ";
 
 	for (auto &&pair : DIEFFDirectionStringPairs) {
 		if (dwFlags & pair.first) {
+			if (!str.empty())
+				str += " | ";
 			str += pair.second;
-			break;
 		}
 	}
 
-	return str;
+	if (!str.empty())
+		return str;
+
+	return format("Unknown DIEFF: {:#x}", dwFlags);
 }
 
 string DIESToString(DWORD dwFlags) {
