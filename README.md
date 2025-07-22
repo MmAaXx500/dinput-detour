@@ -7,11 +7,7 @@ Sometimes it's useful to analyze application behavior to improve compatibility o
 ## Supported Environments
 
  - Windows 10
- - WINE
-
-## Status
-
-DInput Detour is under development. Currently, it can log device information like names, GUIDs, supported effects, and their parameters.
+ - Wine / Proton
 
 ## Usage
 
@@ -27,6 +23,8 @@ To launch an application with DInput Detour injected:
 ```
 withdll.exe /d:dinput-detour64.dll my64bit-program.exe
 ```
+
+DInput Detour will log the activity of the process under the `C:\dinput-detour-logs` directory on both Windows and Wine/Proton. Be aware that the logs grow fast if the application makes frequent calls to the DInput API.
 
 ### Steam (Windows)
 
@@ -75,11 +73,25 @@ PROTON_LOG=1 STEAM_COMPAT_MOUNTS="/path" bash -c '
 
 `/d:Z:\\path\\to\\dinput-detour64.dll` must be changed to the real location of the dll. Use backslashes to be safe.
 
-`PROTON_LOG=1` is optional, but useful to have logs to see if something went wrong. The log is located at `~/steam-<gemeid>.log`.
+`PROTON_LOG=1` is optional, but useful to have logs to see if something went wrong. The log is located at `~/steam-<gameid>.log`.
 
 `STEAM_COMPAT_MOUNTS="/path"` is also optional, but required if the game, `withdll.exe`, or `dinput-detour*.dll` is outside of the steam library folder or the home folder. The path must point to the same device where the files are located. For example, / does not work for other mounted drives, it only works for the root file system.
 
 ## Compile from Source
+
+To compile DInput-Detour from source you need to clone this repository and the included submodules.
+
+```
+git clone https://github.com/MmAaXx500/dinput-detour.git --recurse-submodules
+```
+
+If you already have the repo cloned and you want to pull the latest changes, you will need to pull the changes from this repo and update the submodules too.
+
+```
+git pull --recurse-submodules
+```
+
+At this point you are ready to compile DInput-Detour. Chose one of the methods below, or invent you own.
 
 Regardless of the method used, build files are placed in the `out/build/<preset-name>` directory. For convenience, binaries are copied to `out/bin`.
 
@@ -110,6 +122,8 @@ To build:
 cmake.exe --build --preset msvc-x64-release
 ```
 
+Now you are ready to use it. Go to [Usage](#usage).
+
 ### CLI (Windows MinGW)
 
 Install the MinGW toolchain in your environment (with MSYS for example) and choose one of the `mingw-*` presets. Use the appropriate 64bit or 32bit environment to build the respective presets.
@@ -119,6 +133,8 @@ cmake --preset mingw-x64-release
 cmake --build --preset mingw-x64-release
 ```
 
+Now you are ready to use it. Go to [Usage](#usage).
+
 ### CLI (Linux MinGW)
 
 Install the MinGW toolchain in your environment and choose one of the `mingw-*` presets.
@@ -127,3 +143,5 @@ Install the MinGW toolchain in your environment and choose one of the `mingw-*` 
 cmake --preset mingw-x64-release
 cmake --build --preset mingw-x64-release
 ```
+
+Now you are ready to use it. Go to [Usage](#usage).
