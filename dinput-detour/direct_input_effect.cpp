@@ -18,7 +18,7 @@ static DWORD GetEffectTypeInfo(REFGUID rguid) {
 	return GetCachedEffectInfo<IDirectInput8W>(rguid).dwEffType;
 }
 
-static HRESULT WINAPI RoutedDirectInputEffectGetParameters(
+static HRESULT WINAPI DirectInputEffectGetParameters(
     LPDIRECTINPUTEFFECT lpDiEffect, LPDIEFFECT peff, DWORD dwFlags) {
 	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), static_cast<void *>(peff),
@@ -39,7 +39,7 @@ static HRESULT WINAPI RoutedDirectInputEffectGetParameters(
 	return ret;
 }
 
-static HRESULT WINAPI RoutedDirectInputEffectSetParameters(
+static HRESULT WINAPI DirectInputEffectSetParameters(
     LPDIRECTINPUTEFFECT lpDiEffect, LPCDIEFFECT peff, DWORD dwFlags) {
 	LOG_PRE("lpDiEffect: {}, peff: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), static_cast<const void *>(peff),
@@ -58,8 +58,9 @@ static HRESULT WINAPI RoutedDirectInputEffectSetParameters(
 	return ret;
 }
 
-static HRESULT WINAPI RoutedDirectInputEffectStart(
-    LPDIRECTINPUTEFFECT lpDiEffect, DWORD dwIterations, DWORD dwFlags) {
+static HRESULT WINAPI DirectInputEffectStart(LPDIRECTINPUTEFFECT lpDiEffect,
+                                             DWORD dwIterations,
+                                             DWORD dwFlags) {
 	LOG_PRE("lpDiEffect: {}, dwIterations: {}, dwFlags: {} ({:#x})\n",
 	        static_cast<void *>(lpDiEffect), dwIterations,
 	        DIESToString(dwFlags), dwFlags);
@@ -70,8 +71,7 @@ static HRESULT WINAPI RoutedDirectInputEffectStart(
 	return ret;
 }
 
-static HRESULT WINAPI
-RoutedDirectInputEffectStop(LPDIRECTINPUTEFFECT lpDiEffect) {
+static HRESULT WINAPI DirectInputEffectStop(LPDIRECTINPUTEFFECT lpDiEffect) {
 	LOG_PRE("lpDiEffect: {}\n", static_cast<void *>(lpDiEffect));
 
 	HRESULT ret = RealDirectInputEffectVtbl.Stop(lpDiEffect);
@@ -80,7 +80,7 @@ RoutedDirectInputEffectStop(LPDIRECTINPUTEFFECT lpDiEffect) {
 	return ret;
 }
 
-static HRESULT WINAPI RoutedDirectInputEffectGetEffectStatus(
+static HRESULT WINAPI DirectInputEffectGetEffectStatus(
     LPDIRECTINPUTEFFECT lpDiEffect, LPDWORD pdwFlags) {
 	LOG_PRE("lpDiEffect: {}, pdwFlags: {}\n", static_cast<void *>(lpDiEffect),
 	        static_cast<void *>(pdwFlags));
@@ -97,7 +97,7 @@ static HRESULT WINAPI RoutedDirectInputEffectGetEffectStatus(
 }
 
 static HRESULT WINAPI
-RoutedDirectInputEffectDownload(LPDIRECTINPUTEFFECT lpDiEffect) {
+DirectInputEffectDownload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	LOG_PRE("lpDiEffect: {}\n", static_cast<void *>(lpDiEffect));
 
 	HRESULT ret = RealDirectInputEffectVtbl.Download(lpDiEffect);
@@ -106,8 +106,7 @@ RoutedDirectInputEffectDownload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	return ret;
 }
 
-static HRESULT WINAPI
-RoutedDirectInputEffectUnload(LPDIRECTINPUTEFFECT lpDiEffect) {
+static HRESULT WINAPI DirectInputEffectUnload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	LOG_PRE("lpDiEffect: {}\n", static_cast<void *>(lpDiEffect));
 
 	HRESULT ret = RealDirectInputEffectVtbl.Unload(lpDiEffect);
@@ -116,8 +115,8 @@ RoutedDirectInputEffectUnload(LPDIRECTINPUTEFFECT lpDiEffect) {
 	return ret;
 }
 
-static HRESULT WINAPI RoutedDirectInputEffectEscape(
-    LPDIRECTINPUTEFFECT lpDiEffect, LPDIEFFESCAPE pesc) {
+static HRESULT WINAPI DirectInputEffectEscape(LPDIRECTINPUTEFFECT lpDiEffect,
+                                              LPDIEFFESCAPE pesc) {
 	LOG_PRE("lpDiEffect: {}, pesc: {}\n", static_cast<void *>(lpDiEffect),
 	        static_cast<void *>(pesc));
 
@@ -138,21 +137,21 @@ LONG DirectInputEffectDetourAttach(LPDIRECTINPUTEFFECT lpDiEffect) {
 
 		ret = DetourTransaction([]() {
 			DetourAttach(&RealDirectInputEffectVtbl.GetParameters,
-			             RoutedDirectInputEffectGetParameters);
+			             DirectInputEffectGetParameters);
 			DetourAttach(&RealDirectInputEffectVtbl.SetParameters,
-			             RoutedDirectInputEffectSetParameters);
+			             DirectInputEffectSetParameters);
 			DetourAttach(&RealDirectInputEffectVtbl.Start,
-			             RoutedDirectInputEffectStart);
+			             DirectInputEffectStart);
 			DetourAttach(&RealDirectInputEffectVtbl.Stop,
-			             RoutedDirectInputEffectStop);
+			             DirectInputEffectStop);
 			DetourAttach(&RealDirectInputEffectVtbl.GetEffectStatus,
-			             RoutedDirectInputEffectGetEffectStatus);
+			             DirectInputEffectGetEffectStatus);
 			DetourAttach(&RealDirectInputEffectVtbl.Download,
-			             RoutedDirectInputEffectDownload);
+			             DirectInputEffectDownload);
 			DetourAttach(&RealDirectInputEffectVtbl.Unload,
-			             RoutedDirectInputEffectUnload);
+			             DirectInputEffectUnload);
 			DetourAttach(&RealDirectInputEffectVtbl.Escape,
-			             RoutedDirectInputEffectEscape);
+			             DirectInputEffectEscape);
 		});
 	}
 
@@ -165,21 +164,21 @@ LONG DirectInputEffectDetourDetach(LPDIRECTINPUTEFFECT lpDiEffect) {
 	if (RealDirectInputEffectVtbl.AddRef != nullptr && lpDiEffect) {
 		ret = DetourTransaction([]() {
 			DetourDetach(&RealDirectInputEffectVtbl.GetParameters,
-			             RoutedDirectInputEffectGetParameters);
+			             DirectInputEffectGetParameters);
 			DetourDetach(&RealDirectInputEffectVtbl.SetParameters,
-			             RoutedDirectInputEffectSetParameters);
+			             DirectInputEffectSetParameters);
 			DetourDetach(&RealDirectInputEffectVtbl.Start,
-			             RoutedDirectInputEffectStart);
+			             DirectInputEffectStart);
 			DetourDetach(&RealDirectInputEffectVtbl.Stop,
-			             RoutedDirectInputEffectStop);
+			             DirectInputEffectStop);
 			DetourDetach(&RealDirectInputEffectVtbl.GetEffectStatus,
-			             RoutedDirectInputEffectGetEffectStatus);
+			             DirectInputEffectGetEffectStatus);
 			DetourDetach(&RealDirectInputEffectVtbl.Download,
-			             RoutedDirectInputEffectDownload);
+			             DirectInputEffectDownload);
 			DetourDetach(&RealDirectInputEffectVtbl.Unload,
-			             RoutedDirectInputEffectUnload);
+			             DirectInputEffectUnload);
 			DetourDetach(&RealDirectInputEffectVtbl.Escape,
-			             RoutedDirectInputEffectEscape);
+			             DirectInputEffectEscape);
 		});
 
 		RealDirectInputEffectVtbl = {};
