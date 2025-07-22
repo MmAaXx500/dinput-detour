@@ -42,6 +42,8 @@ std::string TriggerToString(DWORD trigger);
 
 // Structs
 
+std::string GUIDToString(const GUID &guid);
+
 std::string DIPROPToString(REFGUID rguidProp);
 
 std::string DIDEVCAPSToString(const DIDEVCAPS &lpDIDevCaps);

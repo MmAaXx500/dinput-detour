@@ -82,8 +82,8 @@ HRESULT WINAPI RoutedCoCreateInstance(REFIID rclsid, LPUNKNOWN pUnkOuter,
                                       LPVOID *ppv) {
 	LOG_PRE(
 	    "rclsid: {}, pUnkOuter: {}, dwClsContext: {:#x}, riid: {}, ppv: {}\n",
-	    guid_to_str(rclsid), static_cast<void *>(pUnkOuter), dwClsContext,
-	    guid_to_str(riid), static_cast<void *>(ppv));
+	    GUIDToString(rclsid), static_cast<void *>(pUnkOuter), dwClsContext,
+	    GUIDToString(riid), static_cast<void *>(ppv));
 
 	HRESULT ret =
 	    RealCoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
@@ -97,7 +97,7 @@ HRESULT WINAPI RoutedDirectInput8Create(HINSTANCE hinst, DWORD dwVersion,
                                         LPUNKNOWN punkOuter) {
 	LOG_PRE(
 	    "hinst: {} dwVersion: {:#x}, riidltf: {}, ppvOut: {} punkOuter: {}\n",
-	    static_cast<void *>(hinst), dwVersion, guid_to_str(riidltf),
+	    static_cast<void *>(hinst), dwVersion, GUIDToString(riidltf),
 	    static_cast<void *>(ppvOut), static_cast<void *>(punkOuter));
 
 	DWORD ret =
@@ -109,7 +109,7 @@ HRESULT WINAPI RoutedDirectInput8Create(HINSTANCE hinst, DWORD dwVersion,
 		} else if (IsEqualIID(riidltf, IID_IDirectInput8W)) {
 			DirectInput8DetourAttach<IDirectInput8W>((IDirectInput8W *)*ppvOut);
 		} else {
-			LOG_ERR("Unknown IID: {}\n", guid_to_str(riidltf));
+			LOG_ERR("Unknown IID: {}\n", GUIDToString(riidltf));
 		}
 	}
 

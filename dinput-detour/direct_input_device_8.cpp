@@ -47,7 +47,7 @@ HRESULT DirectInputDevice8CreateEffect(
 	LOG_PRE_T(IDInput,
 	          "lpDirectInputDevice: {}, rguid: {}, lpeff: {}, ppdeff: {}, "
 	          "punkOuter: {}\n",
-	          static_cast<void *>(lpDirectInputDevice), guid_to_str(rguid),
+	          static_cast<void *>(lpDirectInputDevice), GUIDToString(rguid),
 	          static_cast<const void *>(lpeff), static_cast<void *>(ppdeff),
 	          static_cast<void *>(punkOuter));
 
@@ -322,7 +322,7 @@ BOOL WINAPI EnumEffectsCallback(
 
 	LOG_INFO_T(IDInput, "pdei dwSize: {}", pdei->dwSize);
 	if (pdei->dwSize >= offsetof(DIEffectInfo, guid) + sizeof(pdei->guid))
-		LOG(", guid: {}", guid_to_str(pdei->guid));
+		LOG(", guid: {}", GUIDToString(pdei->guid));
 	if (pdei->dwSize
 	    >= offsetof(DIEffectInfo, dwEffType) + sizeof(pdei->dwEffType))
 		LOG(", dwEffType: {}({:#x})", DIEFTToString(pdei->dwEffType),
@@ -417,11 +417,11 @@ HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
 
 		if (pdidi->dwSize >= offsetof(DIDeviceInstance, guidInstance)
 		                         + sizeof(pdidi->guidInstance))
-			LOG(", guidInstance: {}", guid_to_str(pdidi->guidInstance));
+			LOG(", guidInstance: {}", GUIDToString(pdidi->guidInstance));
 
 		if (pdidi->dwSize >= offsetof(DIDeviceInstance, guidProduct)
 		                         + sizeof(pdidi->guidProduct))
-			LOG(", guidProduct: {}", guid_to_str(pdidi->guidProduct));
+			LOG(", guidProduct: {}", GUIDToString(pdidi->guidProduct));
 
 		if (pdidi->dwSize
 		    >= offsetof(DIDeviceInstance, dwDevType) + sizeof(pdidi->dwDevType))
@@ -437,7 +437,7 @@ HRESULT WINAPI DirectInputDevice8GetDeviceInfo(
 
 		if (pdidi->dwSize >= offsetof(DIDeviceInstance, guidFFDriver)
 		                         + sizeof(pdidi->guidFFDriver))
-			LOG(", guidFFDriver: {}", guid_to_str(pdidi->guidFFDriver));
+			LOG(", guidFFDriver: {}", GUIDToString(pdidi->guidFFDriver));
 
 		if (pdidi->dwSize >= offsetof(DIDeviceInstance, wUsagePage)
 		                         + sizeof(pdidi->wUsagePage))
@@ -522,7 +522,7 @@ CollectDeviceInfo(typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
 	if (seenDevices.contains(rguid))
 		return;
 
-	LOG_PRE_T(IDInput, "Collecting device info for: {}\n", guid_to_str(rguid));
+	LOG_PRE_T(IDInput, "Collecting device info for: {}\n", GUIDToString(rguid));
 
 	seenDevices.insert(rguid);
 
@@ -541,7 +541,7 @@ CollectDeviceInfo(typename DITraits<IDInput>::DIDevice *lpDirectInputDevice,
 	RealDirectInputDevice8Vtbl<IDInput>.EnumObjects(
 	    lpDirectInputDevice, EnumObjectsCallback<IDInput>, nullptr, DIDFT_ALL);
 
-	LOG_POST_T(IDInput, "Collection ended for: {}\n", guid_to_str(rguid));
+	LOG_POST_T(IDInput, "Collection ended for: {}\n", GUIDToString(rguid));
 }
 
 template <typename IDInput>

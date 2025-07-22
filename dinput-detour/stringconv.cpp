@@ -529,6 +529,14 @@ string TriggerToString(DWORD trigger) {
 	return format("{}", trigger);
 }
 
+string GUIDToString(const GUID &guid) {
+	return format("{:08x}-{:04x}-{:04x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:"
+	              "02x}{:02x}{:02x}",
+	              guid.Data1, guid.Data2, guid.Data3, guid.Data4[0],
+	              guid.Data4[1], guid.Data4[2], guid.Data4[3], guid.Data4[4],
+	              guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+}
+
 string DIPROPToString(REFGUID rguidProp) {
 	for (auto &&pair : DIPROPStringPairs) {
 		if (&rguidProp == &pair.first)
@@ -623,7 +631,7 @@ string DIPROPHEADERToString(REFGUID rguidProp, const DIPROPHEADER &diph) {
 	           && diph.dwSize == sizeof(DIPROPGUIDANDPATH)) {
 		auto pdiguid = reinterpret_cast<LPCDIPROPGUIDANDPATH>(&diph);
 		str += format("guidClass: {}, wszPath: {}",
-		              guid_to_str(pdiguid->guidClass),
+		              GUIDToString(pdiguid->guidClass),
 		              wstring_to_string(pdiguid->wszPath));
 	} else if ((&rguidProp == &DIPROP_LOGICALRANGE
 	            || &rguidProp == &DIPROP_PHYSICALRANGE
@@ -644,7 +652,7 @@ string DIPROPHEADERToString(REFGUID rguidProp, const DIPROPHEADER &diph) {
 	           || &rguidProp == &DIPROP_CPOINTS) {
 		str += format("Unsupported property: {}", DIPROPToString(rguidProp));
 	} else {
-		str += format("Unknown property: {}", guid_to_str(rguidProp));
+		str += format("Unknown property: {}", GUIDToString(rguidProp));
 	}
 
 	return str;
@@ -913,7 +921,7 @@ string DIDEVICEOBJECTINSTANCEToString(
 		else if (doi.guidType == GUID_Unknown)
 			str += "GUID_Unknown";
 		else
-			str += format("Unknown {}", guid_to_str(doi.guidType));
+			str += format("Unknown {}", GUIDToString(doi.guidType));
 	}
 	if (doi.dwSize >= DI_MIN_SIZE(DIDeviceObjectInstance, dwOfs))
 		str += format(", dwOfs: {}", doi.dwOfs);
@@ -954,9 +962,9 @@ string DIDEVICEINSTANCEToString(
 
 	string str = format("dwSize: {}", ddi.dwSize);
 	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, guidInstance))
-		str += format(", guidInstance: {}", guid_to_str(ddi.guidInstance));
+		str += format(", guidInstance: {}", GUIDToString(ddi.guidInstance));
 	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, guidProduct))
-		str += format(", guidProduct: {}", guid_to_str(ddi.guidProduct));
+		str += format(", guidProduct: {}", GUIDToString(ddi.guidProduct));
 	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, dwDevType))
 		str += format(", dwDevType: {} ({:#x})",
 		              DI8DEVTYPEOrCLASSToString(ddi.dwDevType), ddi.dwDevType);
@@ -965,7 +973,7 @@ string DIDEVICEINSTANCEToString(
 	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, tszProductName))
 		str += format(", tszProductName: {}", ToString(ddi.tszProductName));
 	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, guidFFDriver))
-		str += format(", guidFFDriver: {}", guid_to_str(ddi.guidFFDriver));
+		str += format(", guidFFDriver: {}", GUIDToString(ddi.guidFFDriver));
 	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, wUsagePage))
 		str += format(", wUsagePage: {:#x}", ddi.wUsagePage);
 	if (ddi.dwSize >= DI_MIN_SIZE(DIDeviceInstance, wUsage))

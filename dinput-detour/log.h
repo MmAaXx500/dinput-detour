@@ -35,8 +35,6 @@ typedef struct _GUID GUID;
 class Logger;
 extern Logger *logger;
 
-std::string guid_to_str(const GUID &guid);
-
 class Logger {
   public:
 	Logger(const std::string &filename);

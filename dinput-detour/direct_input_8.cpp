@@ -19,7 +19,7 @@ HRESULT WINAPI DirectInput8CreateDevice(
     LPUNKNOWN pUnkOuter) {
 	LOG_PRE_T(IDInput,
 	          "lpDI: {} guid: {}, lplpDirectInputDevice: {}, pUnkOuter: {}\n",
-	          static_cast<void *>(lpDI), guid_to_str(rguid),
+	          static_cast<void *>(lpDI), GUIDToString(rguid),
 	          static_cast<void *>(lplpDirectInputDevice),
 	          static_cast<void *>(pUnkOuter));
 
