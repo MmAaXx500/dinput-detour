@@ -709,10 +709,29 @@ string DIEFFECTToString(LPCDIEFFECT lpeff, DWORD dwEffType) {
 }
 
 string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc) {
-	return format("dwSize: {}, dwCommand: {}, lpvInBuffer: {}, cbInBuffer {}, "
-	              "lpvOutBuffer: {}, cbOutBuffer: {}",
-	              lpesc.dwSize, lpesc.dwCommand, lpesc.lpvInBuffer,
-	              lpesc.cbInBuffer, lpesc.lpvOutBuffer, lpesc.cbOutBuffer);
+	string str = format("dwSize: {}, dwCommand: {:#x}, lpvInBuffer: {{ ",
+	                    lpesc.dwSize, lpesc.dwCommand);
+
+	if (lpesc.lpvInBuffer) {
+		for (DWORD i = 0; i < lpesc.cbInBuffer; i++)
+			str +=
+			    format("{:x} ", static_cast<uint8_t *>(lpesc.lpvInBuffer)[i]);
+	} else {
+		str += "null ";
+	}
+
+	str += format("}}, cbInBuffer {}, lpvOutBuffer: {{ ", lpesc.cbInBuffer);
+
+	if (lpesc.lpvOutBuffer) {
+		for (DWORD i = 0; i < lpesc.cbOutBuffer; i++)
+			str +=
+			    format("{:x} ", static_cast<uint8_t *>(lpesc.lpvOutBuffer)[i]);
+	} else {
+		str += "null ";
+	}
+
+	str += format("}}, cbOutBuffer: {}", lpesc.cbOutBuffer);
+	return str;
 }
 
 static string DIDODdwDataToString(DWORD dwData, const DIDATAFORMAT &lpdf,
