@@ -785,7 +785,7 @@ string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc) {
 	if (lpesc.lpvInBuffer) {
 		for (DWORD i = 0; i < lpesc.cbInBuffer; i++)
 			str +=
-			    format("{:x} ", static_cast<uint8_t *>(lpesc.lpvInBuffer)[i]);
+			    format("{:02x} ", static_cast<uint8_t *>(lpesc.lpvInBuffer)[i]);
 	} else {
 		str += "null ";
 	}
@@ -794,8 +794,8 @@ string DIEFFESCAPEToString(const DIEFFESCAPE &lpesc) {
 
 	if (lpesc.lpvOutBuffer) {
 		for (DWORD i = 0; i < lpesc.cbOutBuffer; i++)
-			str +=
-			    format("{:x} ", static_cast<uint8_t *>(lpesc.lpvOutBuffer)[i]);
+			str += format("{:02x} ",
+			              static_cast<uint8_t *>(lpesc.lpvOutBuffer)[i]);
 	} else {
 		str += "null ";
 	}
